@@ -4,13 +4,13 @@
 
 namespace Undaunted
 {
-	TESObjectREFR* SpawnMonsterAtRef(VMClassRegistry* registry,UInt32 Type, TESObjectREFR* ref, TESObjectCELL* cell, TESWorldSpace* worldspace)
+	TESObjectREFR* SpawnMonsterAtRef(RE::BSScript::Internal::VirtualMachine* registry,std::uint32_t Type, TESObjectREFR* ref, TESObjectCELL* cell, TESWorldSpace* worldspace)
 	{
 		NiPoint3 startingpoint = ref->pos;
 		TESForm* spawnForm = LookupFormByID(Type);
 		if (spawnForm == NULL)
 		{
-			_MESSAGE("Failed to Spawn. Form Invalid: %08X", Type);
+			logger::info("Failed to Spawn. Form Invalid: %08X", Type);
 			return NULL;
 		}
 		int spawnradius = GetConfigValueInt("BountyEnemyInteriorSpawnRadius");
@@ -21,12 +21,12 @@ namespace Undaunted
 		return spawned;
 	}
 
-	TESObjectREFR* SpawnRefAtPosition(UInt32 Type, WorldCell wcell, NiPoint3 Position)
+	TESObjectREFR* SpawnRefAtPosition(std::uint32_t Type, WorldCell wcell, NiPoint3 Position)
 	{
 		TESForm* spawnForm = LookupFormByID(Type);
 		if (spawnForm == NULL)
 		{
-			_MESSAGE("Failed to Spawn. Form Invalid: %08X", Type);
+			logger::info("Failed to Spawn. Form Invalid: %08X", Type);
 			return NULL;
 		}
 		TESObjectREFR* spawned = PlaceAtMe(BountyManager::getInstance()->_registry, 1, GetPlayer(), spawnForm, 1, true, false);
@@ -34,12 +34,12 @@ namespace Undaunted
 		return spawned;
 	}
 
-	TESObjectREFR* SpawnMonsterInCell(VMClassRegistry* registry, UInt32 Type, WorldCell wcell)
+	TESObjectREFR* SpawnMonsterInCell(RE::BSScript::Internal::VirtualMachine* registry, std::uint32_t Type, WorldCell wcell)
 	{
 		TESForm* spawnForm = LookupFormByID(Type);
 		if (spawnForm == NULL)
 		{
-			_MESSAGE("Failed to Spawn. Form Invalid: %08X", Type);
+			logger::info("Failed to Spawn. Form Invalid: %08X", Type);
 			return NULL;
 		}
 		TESObjectREFR* target = GetRandomObjectInCell(wcell);
@@ -47,25 +47,25 @@ namespace Undaunted
 		return spawned;
 	}
 
-	GroupList SpawnGroupInCell(VMClassRegistry* registry, GroupList Types, WorldCell wcell)
+	GroupList SpawnGroupInCell(RE::BSScript::Internal::VirtualMachine* registry, GroupList Types, WorldCell wcell)
 	{
 		TESObjectREFR* target = GetRandomObjectInCell(wcell);
 		return SpawnGroupAtTarget(registry, Types, target, wcell.cell, wcell.world,0,1000);
 	}
 
-	GroupList SpawnGroupAtTarget(VMClassRegistry* registry, GroupList Types, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace, int spawnradius, int HeightDistance)
+	GroupList SpawnGroupAtTarget(RE::BSScript::Internal::VirtualMachine* registry, GroupList Types, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace, int spawnradius, int HeightDistance)
 	{
 		TESObjectREFR* spawned = NULL;
 		srand(time(NULL));
 		NiPoint3 startingpoint = Target->pos;
 
-		for (UInt32 i = 0; i < Types.length; i++)
+		for (std::uint32_t i = 0; i < Types.length; i++)
 		{
-			_MESSAGE("Calling LookupFormByID");
+			logger::info("Calling LookupFormByID");
 			TESForm* spawnForm = LookupFormByID(Types.data[i].FormId);
 			if (spawnForm == NULL)
 			{
-				_MESSAGE("Failed to Spawn. Form Invalid");
+				logger::info("Failed to Spawn. Form Invalid");
 				return Types;
 			}
 			//If a model file path is set then change the form model.
@@ -74,7 +74,7 @@ namespace Undaunted
 				TESModel* pWorldModel = DYNAMIC_CAST(spawnForm, TESForm, TESModel);
 				if (pWorldModel)
 				{
-					_MESSAGE("GetModelName: %s", pWorldModel->GetModelName());
+					logger::info("GetModelName: %s", pWorldModel->GetModelName());
 					pWorldModel->SetModelName(Types.data[i].ModelFilepath.Get());
 				}
 			}
@@ -86,7 +86,7 @@ namespace Undaunted
 				int giveupcount = 10; //It's possible that we'll never find anything valid. If that's the case give up. This is quite low as we are spawning something everytime we try this.
 				while (!placedsuccessfully)
 				{
-					_MESSAGE("placedsuccessfully");
+					logger::info("placedsuccessfully");
 					//Random Offset
 					NiPoint3 offset = NiPoint3(rand() & spawnradius, rand() & spawnradius, 0);
 
@@ -97,7 +97,7 @@ namespace Undaunted
 						//Delete
 						if ((heightdist > HeightDistance || heightdist < -HeightDistance) && giveupcount > 0)
 						{
-							_MESSAGE("Spawn Height is too different. Deleting.");
+							logger::info("Spawn Height is too different. Deleting.");
 							MoveRefToWorldCell(spawned, cell, worldspace, NiPoint3(0, 0, 10000), NiPoint3(0, 0, 0));
 							BountyManager::getInstance()->AddToDeleteList(spawned);
 							giveupcount--;
@@ -148,7 +148,7 @@ namespace Undaunted
 	VMResultArray<float> RiftRotations;
 	RefList riftobjectrefs = RefList();
 
-	RefList SpawnRift(VMClassRegistry* registry, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace)
+	RefList SpawnRift(RE::BSScript::Internal::VirtualMachine* registry, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace)
 	{
 		//Debug
 		srand(time(NULL));
@@ -163,7 +163,7 @@ namespace Undaunted
 			TESForm* spawnForm = LookupFormByID(formlist.data[i].formId);
 			if (spawnForm == NULL)
 			{
-				_MESSAGE("Spawnform is null");
+				logger::info("Spawnform is null");
 				continue;
 			}
 			NiPoint3 position = startingpoint + formlist.data[i].pos;
@@ -179,7 +179,7 @@ namespace Undaunted
 //			MoveRefToWorldCell(spawned, cell, worldspace, position, rotation);
 
 
-			_MESSAGE("Spawn details: %f, %f, %f, %f, %f, %f", position.x, position.y, position.z, rotation.x, rotation.y, rotation.z);
+			logger::info("Spawn details: %f, %f, %f, %f, %f, %f", position.x, position.y, position.z, rotation.x, rotation.y, rotation.z);
 			Ref newref = Ref();
 			newref.objectRef = spawned;
 			riftobjectrefs.AddItem(newref);

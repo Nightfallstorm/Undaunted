@@ -1,22 +1,22 @@
 #include "WorldCellList.h"
-#include <Undaunted\FormRefList.h>
+#include <FormRefList.h>
 
 namespace Undaunted
 {
-	TESObjectREFR* GetRefObjectInCurrentCell(UInt32 formID);
+	RE::TESObjectREFR* GetRefObjectInCurrentCell(std::uint32_t formID);
 	//TESObjectREFR* GetRefObjectFromWorld(UInt32 formID);
-	TESObjectREFR* GetRandomObjectInCell(WorldCell worldcell);
+	RE::TESObjectREFR* GetRandomObjectInCell(WorldCell worldcell);
 	void BuildWorldList();
 	WorldCell GetRandomWorldCell();
-	WorldCell GetNamedWorldCell(BSFixedString WorldspaceName);
-	void MoveRefToWorldCell(TESObjectREFR* object, TESObjectCELL* cell, TESWorldSpace* worldspace, NiPoint3 pos, NiPoint3 rot);
-	WorldCell GetWorldCellFromRef(TESObjectREFR* object);
+	WorldCell GetNamedWorldCell(RE::BSFixedString WorldspaceName);
+	void MoveRefToWorldCell(RE::TESObjectREFR* object, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace, RE::NiPoint3 pos, RE::NiPoint3 rot);
+	WorldCell GetWorldCellFromRef(RE::TESObjectREFR* object);
 
 	void CaptureArea();
 	void AddRift(FormRefList reflist);
 	FormRefList GetRandomRift();
 
 	void InitBakedRiftStartMarkers();
-	TESObjectREFR* GetRandomBakedRiftStartMarker();
+	RE::TESObjectREFR* GetRandomBakedRiftStartMarker();
 
 }

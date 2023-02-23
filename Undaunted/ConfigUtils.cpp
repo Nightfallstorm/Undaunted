@@ -10,9 +10,9 @@ namespace Undaunted
 	UnDictionary SettingsList;
 
 	//Regions
-	void AddBadRegionToConfig(UInt32 region)
+	void AddBadRegionToConfig(std::uint32_t region)
 	{
-		_MESSAGE("Adding %08X to Bad Region List", region);
+		logger::info("Adding %08X to Bad Region List", region);
 		BadRegionList.AddItem(region);
 	}
 
@@ -21,9 +21,9 @@ namespace Undaunted
 	}
 
 	//Groups
-	int AddGroup(std::string questText, UInt32 minlevel, UInt32 maxlevel, UnStringlist tags)
+	int AddGroup(std::string questText, std::uint32_t minlevel, std::uint32_t maxlevel, UnStringlist tags)
 	{
-		_MESSAGE("Adding bounty to GroupLibary: %s", questText.c_str());
+		logger::info("Adding bounty to GroupLibary: %s", questText.c_str());
 		GroupList newGroup = GroupList();
 		newGroup.questText = questText;
 		newGroup.minLevel = minlevel;
@@ -35,7 +35,7 @@ namespace Undaunted
 
 	void AddMembertoGroup(int id, GroupMember member)
 	{
-		//_MESSAGE("Adding %08X to %i of BountyType %s",member.FormId, id,member.BountyType.Get());
+		//logger::info("Adding %08X to %i of BountyType %s",member.FormId, id,member.BountyType.Get());
 		GroupLibary.data[id].AddItem(member);
 	}
 
@@ -70,17 +70,17 @@ namespace Undaunted
 	int GroupLibaryIndex = 0;
 	GroupList GetRandomGroup()
 	{
-		UInt32 playerLevel = GetPlayerLevel();
+		std::uint32_t playerLevel = GetPlayerLevel();
 		while (true)
 		{
 			int groupid = GroupLibaryIndex++;
-			_MESSAGE("Random Group: %i", groupid);
+			logger::info("Random Group: %i", groupid);
 			if (groupid >= GroupLibary.length)
 			{
 				ShuffleGroupLibary();
 				GroupLibaryIndex = 0;
 			}
-			_MESSAGE("Random Member Count: %i", GroupLibary.data[groupid].length);
+			logger::info("Random Member Count: %i", GroupLibary.data[groupid].length);
 			//Player is too low level for this bounty
 			if (playerLevel + GetConfigValueInt("BountyLevelCache") < GroupLibary.data[groupid].minLevel && GroupLibary.data[groupid].minLevel != 0)
 			{
@@ -97,7 +97,7 @@ namespace Undaunted
 
 	GroupList GetRandomTaggedGroup(std::string tag)
 	{
-		UInt32 playerLevel = GetPlayerLevel();
+		std::uint32_t playerLevel = GetPlayerLevel();
 		int startingGroupLibaryIndex = GroupLibaryIndex;
 		while(true)
 		{
@@ -108,8 +108,8 @@ namespace Undaunted
 				GroupLibaryIndex = 0;
 				startingGroupLibaryIndex = 0;
 			}
-			_MESSAGE("Random Group: %i", groupid);
-			_MESSAGE("Random Member Count: %i", GroupLibary.data[groupid].length);
+			logger::info("Random Group: %i", groupid);
+			logger::info("Random Member Count: %i", GroupLibary.data[groupid].length);
 			//Player is too low level for this bounty
 			if (playerLevel + GetConfigValueInt("BountyLevelCache") < GroupLibary.data[groupid].minLevel && GroupLibary.data[groupid].minLevel != 0)
 			{
@@ -123,10 +123,10 @@ namespace Undaunted
 			
 			for (int i = 0; i < GroupLibary.data[groupid].Tags.length; i++)
 			{
-				_MESSAGE("Comparing Tag: %s = %s", GroupLibary.data[groupid].Tags.data[i].c_str(), tag.c_str());
+				logger::info("Comparing Tag: %s = %s", GroupLibary.data[groupid].Tags.data[i].c_str(), tag.c_str());
 				if (GroupLibary.data[groupid].Tags.data[i].compare(tag) == 0)
 				{
-					_MESSAGE("Found Tag: %s", GroupLibary.data[groupid].Tags.data[i].c_str());
+					logger::info("Found Tag: %s", GroupLibary.data[groupid].Tags.data[i].c_str());
 					if (GroupLibaryIndex > GroupLibary.length)
 					{
 						ShuffleGroupLibary();
@@ -143,14 +143,14 @@ namespace Undaunted
 
 	void AddConfigValue(std::string key, std::string value)
 	{
-		//_MESSAGE("CONFIGLENGTH: %i", SettingsList.length);
+		//logger::info("CONFIGLENGTH: %i", SettingsList.length);
 		//check if it exists		
 		for (int i = 0; i < SettingsList.length; i++)
 		{
 			if (SettingsList.data[i].key.compare(key) == 0)
 			{
 				SettingsList.data[i].value = value;
-				//_MESSAGE("SET: %s : %s", key, value);
+				//logger::info("SET: %s : %s", key, value);
 				return;
 			}
 		}
@@ -159,17 +159,17 @@ namespace Undaunted
 		setting.key = key;
 		setting.value = value;
 		SettingsList.AddItem(setting);
-		//_MESSAGE("ADD: %s : %s", key.c_str(), value.c_str());
+		//logger::info("ADD: %s : %s", key.c_str(), value.c_str());
 	}
 
-	UInt32 GetConfigValueInt(std::string key)
+	std::uint32_t GetConfigValueInt(std::string key)
 	{
 		for (int i = 0; i < SettingsList.length; i++)
 		{
-			//_MESSAGE("Comparing %s : %s", key.c_str(), SettingsList.data[i].key.c_str());
+			//logger::info("Comparing %s : %s", key.c_str(), SettingsList.data[i].key.c_str());
 			if (SettingsList.data[i].key.compare(key) == 0)
 			{
-				//_MESSAGE("Found Key %s : %s", key.c_str(), SettingsList.data[i].value.c_str());
+				//logger::info("Found Key %s : %s", key.c_str(), SettingsList.data[i].value.c_str());
 				return atoi(SettingsList.data[i].value.c_str());
 			}
 		}
@@ -177,13 +177,13 @@ namespace Undaunted
 		return 0;
 	}
 
-	UInt32 Playerlevel;
-	void SetPlayerLevel(UInt32 level)
+	std::uint32_t Playerlevel;
+	void SetPlayerLevel(std::uint32_t level)
 	{
 		Playerlevel = level;
 	}
 
-	UInt32 GetPlayerLevel()
+	std::uint32_t GetPlayerLevel()
 	{
 		return Playerlevel;
 	}

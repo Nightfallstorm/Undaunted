@@ -4,9 +4,9 @@ namespace Undaunted
 #define Intlistdef
 	class IntList {
 	public:
-		UInt32* data;
+		std::uint32_t* data;
 		int length;
-		IntList* AddItem(UInt32 item);
+		IntList* AddItem(std::uint32_t item);
 	};
 
 #endif

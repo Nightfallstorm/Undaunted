@@ -6,10 +6,10 @@ namespace Undaunted
 #define FormRefListdef
 	class FormRef {
 	public:
-		FormType type;
-		UInt32 formId;
-		NiPoint3 pos;
-		NiPoint3 rot;
+		RE::FormType type;
+		std::uint32_t formId;
+		RE::NiPoint3 pos;
+		RE::NiPoint3 rot;
 		int scale;
 	};
 

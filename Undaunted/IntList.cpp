@@ -2,12 +2,12 @@
 
 namespace Undaunted
 {
-	IntList* IntList::AddItem(UInt32 item)
+	IntList* IntList::AddItem(std::uint32_t item)
 	{
 		IntList* currentlist = this;
 		IntList newlist = IntList();
 		newlist.length = currentlist->length + 1;
-		newlist.data = new UInt32[newlist.length];
+		newlist.data = new std::uint32_t[newlist.length];
 		for (int i = 0; i < currentlist->length; i++)
 		{
 			newlist.data[i] = currentlist->data[i];

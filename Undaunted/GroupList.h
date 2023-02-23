@@ -7,11 +7,11 @@ namespace Undaunted
 #define GroupListdef
 	class GroupMember {
 	public:
-		UInt32 FormId;
+		std::uint32_t FormId;
 		std::string BountyType;
-		TESObjectREFR* objectRef;
+		RE::TESObjectREFR* objectRef;
 
-		BSFixedString ModelFilepath;
+		RE::BSFixedString ModelFilepath;
 
 		int IsComplete();
 		bool isComplete = false;
@@ -23,13 +23,13 @@ namespace Undaunted
 	public:
 		std::string questText;
 		GroupMember* data;
-		UInt32 minLevel;
-		UInt32 maxLevel;
+		std::uint32_t minLevel;
+		std::uint32_t maxLevel;
 		int length;
 		UnStringlist Tags;
 		GroupList* AddItem(GroupMember item);
 		GroupList* SwapItem(int first, int second);
-		void SetGroupMemberComplete(UInt32 id);
+		void SetGroupMemberComplete(std::uint32_t id);
 	};
 
 #endif

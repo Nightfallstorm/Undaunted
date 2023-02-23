@@ -95,7 +95,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		logger::info("RegisterListener");
 
 		auto papyrus = SKSE::GetPapyrusInterface();
-		papyrus->Register(Undaunted::RegisterFuncs);
+		papyrus->Register(UndauntedPapyrus::RegisterFuncs);
 		logger::info("Register Succeeded");
 
 		logger::info("SKSEPlugin_Load Succeeded");

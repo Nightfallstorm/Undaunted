@@ -5,12 +5,12 @@
 
 namespace Undaunted
 {
-	TESObjectREFR* SpawnMonsterAtRef(VMClassRegistry* registry, UInt32 Type, TESObjectREFR* ref, TESObjectCELL* cell, TESWorldSpace* worldspace);
-	TESObjectREFR* SpawnRefAtPosition(UInt32 Type, WorldCell wcell, NiPoint3 Position);
-	TESObjectREFR* SpawnMonsterInCell(VMClassRegistry* registry, UInt32 Type, WorldCell wcell);
-	GroupList SpawnGroupInCell(VMClassRegistry* registry, GroupList Types, WorldCell wcell);
-	GroupList SpawnGroupAtTarget(VMClassRegistry* registry, GroupList Types, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace, int spawnradius, int HeightDistance);
-	RefList SpawnRift(VMClassRegistry* registry, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace);
-	VMResultArray<float> GetRiftRotations();
+	RE::TESObjectREFR* SpawnMonsterAtRef(RE::BSScript::Internal::VirtualMachine* registry, std::uint32_t Type, RE::TESObjectREFR* ref, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace);
+	RE::TESObjectREFR* SpawnRefAtPosition(std::uint32_t Type, WorldCell wcell, RE::NiPoint3 Position);
+	RE::TESObjectREFR* SpawnMonsterInCell(RE::BSScript::Internal::VirtualMachine* registry, std::uint32_t Type, WorldCell wcell);
+	GroupList SpawnGroupInCell(RE::BSScript::Internal::VirtualMachine* registry, GroupList Types, WorldCell wcell);
+	GroupList SpawnGroupAtTarget(RE::BSScript::Internal::VirtualMachine* registry, GroupList Types, RE::TESObjectREFR* Target, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace, int spawnradius, int HeightDistance);
+	RefList SpawnRift(RE::BSScript::Internal::VirtualMachine* registry, RE::TESObjectREFR* Target, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace);
+	std::vector<float> GetRiftRotations();
 	RefList GetCurrentRiftRefs();
 }

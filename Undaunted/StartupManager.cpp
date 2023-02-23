@@ -1,17 +1,17 @@
-#include <Undaunted\ConfigUtils.h>
+#include <ConfigUtils.h>
 #include "StartupManager.h"
 #include "RSJparser.tcc"
 #include <filesystem>
 #include <algorithm>
 #include <string>
-#include <Undaunted\FormRefList.h>
-#include <Undaunted\LocationUtils.h>
+#include <FormRefList.h>
+#include <LocationUtils.h>
 
 namespace Undaunted {
 	RSJresource currentfile;
 	void LoadJson(const char* filepath)
 	{
-		_MESSAGE("Loading %s", filepath);
+		logger::info("Loading %s", filepath);
 		std::ifstream t(filepath);
 		t.seekg(0, std::ios::end);
 		size_t size = t.tellg();
@@ -28,7 +28,7 @@ namespace Undaunted {
 		RSJresource settings = currentfile; 
 
 		auto data = settings.as_array();
-		_MESSAGE("size: %i", data.size());
+		logger::info("size: %i", data.size());
 		for (int i = 0; i < data.size(); i++)
 		{
 			auto inner = data[i].as_array();
@@ -43,7 +43,7 @@ namespace Undaunted {
 		{
 			std::string modname = modblacklist[i].as<std::string>("default string");
 			AddRewardBlacklist(modname);
-			_MESSAGE("RewardModBlacklist modname: %s", modname.c_str());
+			logger::info("RewardModBlacklist modname: %s", modname.c_str());
 		}
 
 		LoadJson("Data/Undaunted/Safezones.json");
@@ -65,15 +65,15 @@ namespace Undaunted {
 			zone.PosZ = PosZ;
 			zone.Radius = Radius;
 			AddSafezone(zone);
-			_MESSAGE("Safezone %s, %s, %i, %i, %i, %i", Zonename.c_str(), Worldspace.c_str(), PosX, PosY, PosZ, Radius);
+			logger::info("Safezone %s, %s, %i, %i, %i, %i", Zonename.c_str(), Worldspace.c_str(), PosX, PosY, PosZ, Radius);
 		}
 	}
 
 	//With creation club there's now a need to load forms from ESL's.
 	int getFormId(std::string mod, int form)
 	{
-		DataHandler* dataHandler = GetDataHandler();
-		const ModInfo* modInfo = dataHandler->LookupModByName(mod.c_str());
+		auto dataHandler = RE::TESDataHandler::GetSingleton();
+		const RE::TESFile* modInfo = dataHandler->LookupModByName(mod.c_str());
 		int tempform = form;
 		if (modInfo != NULL)
 		{
@@ -95,26 +95,26 @@ namespace Undaunted {
 			}
 		}
 		form = tempform;
-		_MESSAGE("modIndex: ", modInfo->modIndex);
-		_MESSAGE("form id: %i", form);
+		logger::info("modIndex: ", modInfo->modIndex);
+		logger::info("form id: %i", form);
 		return form;
 	}
 
 	void LoadGroups()
 	{
-		DataHandler* dataHandler = GetDataHandler();
-		_MESSAGE("Loading Groups...");
+		auto dataHandler = RE::TESDataHandler::GetSingleton();
+		logger::info("Loading Groups...");
 		std::string path = "Data/Undaunted/Groups";
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
 			auto filename = entry.path().u8string();
-			_MESSAGE("file: %s", filename.c_str());
+			logger::info("file: %s", filename.c_str());
 			if (entry.is_regular_file())
 			{
 				LoadJson(filename.c_str());
 				RSJresource settings = currentfile;
 				auto data = settings.as_array();
-				_MESSAGE("size: %i", data.size());
+				logger::info("size: %i", data.size());
 				for (int i = 0; i < data.size(); i++)
 				{
 					auto group = data[i].as_array();
@@ -131,21 +131,21 @@ namespace Undaunted {
 					while ((pos = tags.find(delimiter)) != std::string::npos) {
 						token = tags.substr(0, pos);
 						std::transform(token.begin(), token.end(), token.begin(), ::toupper);
-						_MESSAGE("tags: %s", token.c_str());
+						logger::info("tags: %s", token.c_str());
 						taglist.AddItem(token);
 						tags.erase(0, pos + delimiter.length());
 					}
 					std::transform(tags.begin(), tags.end(), tags.begin(), ::toupper);
 					taglist.AddItem(tags);
-					const ModInfo* modInfo = dataHandler->LookupModByName(modreq.c_str());
+					const RE::TESFile* modInfo = dataHandler->LookupModByName(modreq.c_str());
 					if (modInfo != NULL && modInfo->IsActive())
 					{
-						_MESSAGE("tags: %s", tags.c_str());
+						logger::info("tags: %s", tags.c_str());
 						int groupid = AddGroup(groupname, minlevel, maxlevel, taglist);
 						for (int j = 1; j < group.size(); j++)
 						{
 							std::string esp = group[j][1].as<std::string>("esp");
-							const ModInfo* modInfo = dataHandler->LookupModByName(esp.c_str());
+							const RE::TESFile* modInfo = dataHandler->LookupModByName(esp.c_str());
 							int form = getFormId(esp,group[j][2].as<int>(0));
 							std::string type = group[j][3].as<std::string>("type");
 							std::string model = std::string("");
@@ -164,6 +164,6 @@ namespace Undaunted {
 				}
 			}
 		}
-		_MESSAGE("Groups loaded: %i", GetGroupCount());
+		logger::info("Groups loaded: %i", GetGroupCount());
 	}
 }

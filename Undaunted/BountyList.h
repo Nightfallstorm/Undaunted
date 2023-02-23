@@ -1,6 +1,6 @@
 #include "SKSELink.h"
-#include <Undaunted\WorldCellList.h>
-#include <Undaunted\GroupList.h>
+#include <WorldCellList.h>
+#include <GroupList.h>
 
 namespace Undaunted
 {
@@ -8,8 +8,8 @@ namespace Undaunted
 #define BountyListdef
 	class Bounty {
 	public:
-		TESObjectREFR* xmarkerref = NULL;
-		BGSMessage* bountymessageref = NULL;
+		RE::TESObjectREFR* xmarkerref = NULL;
+		RE::BGSMessage* bountymessageref = NULL;
 		GroupList bountygrouplist;
 		WorldCell bountyworldcell;
 		int bountywave = 0;

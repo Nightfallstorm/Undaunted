@@ -12,7 +12,7 @@ namespace Undaunted {
 		static BountyManager* instance;
 		static BountyManager* getInstance();
 
-		VMClassRegistry* _registry;
+		RE::BSScript::Internal::VirtualMachine* _registry;
 		int isReady = 0;
 
 		BountyList activebounties = BountyList();
@@ -20,14 +20,14 @@ namespace Undaunted {
 		RefList deleteList = RefList();
 
 		bool BountyUpdate(int BountyID);
-		float StartBounty(int BountyID, bool nearby, const char* BountyName, TESObjectREFR* ref, BSFixedString WorldSpaceName, std::string bountyTag = "");
+		float StartBounty(int BountyID, bool nearby, const char* BountyName, RE::TESObjectREFR* ref, RE::BSFixedString WorldSpaceName, std::string bountyTag = "");
 		float restartBounty(int BountyID, const char* BountyName);
 		void ClearBountyData(int BountyID);
 		void ResetBountiesRan();
-		void AddToDeleteList(TESObjectREFR* ref);
+		void AddToDeleteList(RE::TESObjectREFR* ref);
 		void ClearDeleteList();
 
-		RefList StartRift(int BountyID, TESObjectREFR* Startpoint);
+		RefList StartRift(int BountyID, RE::TESObjectREFR* Startpoint);
 
 	};
 #endif

@@ -6,8 +6,8 @@ namespace Undaunted
 #define WorldCellListdef
 	class WorldCell {
 	public:
-		TESWorldSpace* world;
-		TESObjectCELL* cell;
+		RE::TESWorldSpace* world;
+		RE::TESObjectCELL* cell;
 	};
 
 	class WorldCellList {

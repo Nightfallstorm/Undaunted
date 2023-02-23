@@ -1,9 +1,9 @@
 #include "LocationUtils.h"
-#include <Undaunted\ConfigUtils.h>
+#include <ConfigUtils.h>
 #include "WorldCellList.h"
 #include "FormRefList.h"
-#include <Undaunted\RiftList.h>
-#include <Undaunted\RefList.h>
+#include <RiftList.h>
+#include <RefList.h>
 
 namespace Undaunted {
 	WorldCellList worldCellList;
@@ -11,21 +11,21 @@ namespace Undaunted {
 
 
 
-	TESObjectREFR* GetRefObjectInCurrentCell(UInt32 formID)
+	RE::TESObjectREFR* GetRefObjectInCurrentCell(std::uint32_t formID)
 	{
-		TESObjectCELL* parentCell = GetPlayer()->parentCell;
+		RE::TESObjectCELL* parentCell = GetPlayer()->parentCell;
 		int numberofRefs = papyrusCell::GetNumRefs(parentCell, 0);
-		_MESSAGE("GetObjectInCurrentCell Num Ref: %i", numberofRefs);
+		logger::info("GetObjectInCurrentCell Num Ref: %i", numberofRefs);
 		for (int i = 0; i < numberofRefs; i++)
 		{
-			TESObjectREFR* ref = papyrusCell::GetNthRef(parentCell, i, 0);
+			RE::TESObjectREFR* ref = papyrusCell::GetNthRef(parentCell, i, 0);
 			if (ref != NULL)
 			{
 				if (ref->formID != NULL)
 				{
 					if (ref->formID == formID)
 					{
-						_MESSAGE("ref->formID == formID");
+						logger::info("ref->formID == formID");
 						return ref;
 					}
 				}
@@ -36,30 +36,30 @@ namespace Undaunted {
 
 	//Use Sparingly.
 	/*
-	TESObjectREFR* GetRefObjectFromWorld(UInt32 formID)
+	TESObjectREFR* GetRefObjectFromWorld(std::uint32_t formID)
 	{
 		DataHandler* handler = GetDataHandler();
-		_MESSAGE("RegionList Count: %08X", handler->regionList->Count());
-		UInt32 regioncount = handler->regionList->Count();
-		for (UInt32 i = 0; i < regioncount; i++)
+		logger::info("RegionList Count: %08X", handler->regionList->Count());
+		std::uint32_t regioncount = handler->regionList->Count();
+		for (std::uint32_t i = 0; i < regioncount; i++)
 		{
 			//Some regions are dodgy
 			if (i != 0x00000033 && i != 0x00000036 && i != 0x0000009B && i != 0x00000110)
 			{
-				_MESSAGE("processing worldSpace %08X", i);
+				logger::info("processing worldSpace %08X", i);
 				TESRegion* test = (TESRegion*)handler->regionList->GetNthItem(i);
 				if (test != NULL)
 				{
 					if (test->worldSpace == NULL)
 					{
-						_MESSAGE("worldSpace %08X is null", i);
+						logger::info("worldSpace %08X is null", i);
 					}
 					else
 					{
 						TESObjectCELL* cell = test->worldSpace->unk088;
 						if (cell != NULL)
 						{
-							_MESSAGE("Regioncell form id %08X", cell->formID);
+							logger::info("Regioncell form id %08X", cell->formID);
 							if (cell->formID == 0x00000D74)
 							{
 								int numberofRefs = papyrusCell::GetNumRefs(cell, 0);
@@ -84,30 +84,30 @@ namespace Undaunted {
 						}
 						else
 						{
-							_MESSAGE("unk088 is null", i);
+							logger::info("unk088 is null", i);
 						}
 					}
 
 				}
 				else
 				{
-					_MESSAGE("RegionList %08X is null", i);
+					logger::info("RegionList %08X is null", i);
 				}
 			}
 		}
 		return NULL;
 	}*/
 
-	TESObjectREFR* GetRandomObjectInCell(WorldCell worldcell)
+	RE::TESObjectREFR* GetRandomObjectInCell(WorldCell worldcell)
 	{
 		int numberofRefs = papyrusCell::GetNumRefs(worldcell.cell, 0);
 		auto safezones = GetSafezones();
-		//_MESSAGE("GetRandomObjectInCell Num Ref: %i", numberofRefs);		
+		//logger::info("GetRandomObjectInCell Num Ref: %i", numberofRefs);		
 		if (numberofRefs == 0)return NULL;
 		while (true)
 		{
 			int Nth = rand() % numberofRefs;
-			TESObjectREFR* ref = papyrusCell::GetNthRef(worldcell.cell, Nth, 0);
+			RE::TESObjectREFR* ref = papyrusCell::GetNthRef(worldcell.cell, Nth, 0);
 			bool valid = true;
 			for (int i = 0; i < safezones.length; i++)
 			{
@@ -117,7 +117,7 @@ namespace Undaunted {
 					if (distvector.Magnitude() < safezones.data[i].Radius)
 					{
 						valid = false;
-						_MESSAGE("Target in Safezone: %s", safezones.data[i].Zonename.c_str());
+						logger::info("Target in Safezone: %s", safezones.data[i].Zonename.c_str());
 						break;
 					}
 				}
@@ -136,17 +136,17 @@ namespace Undaunted {
 		{
 			return;
 		}
-		DataHandler* handler = GetDataHandler();
-		_MESSAGE("RegionList Count: %08X", handler->regionList->Count());
+		auto handler = RE::TESDataHandler::GetSingleton();
+		logger::info("RegionList Count: %08X", handler->regionList->Count());
 
 		IntList badregions = GetBadRegions();
 
-		UInt32 regioncount = handler->regionList->Count();
-		for (UInt32 i = 0; i < regioncount; i++)
+		std::uint32_t regioncount = handler->regionList->Count();
+		for (std::uint32_t i = 0; i < regioncount; i++)
 		{
 			//Check for badregion
 			bool badRegion = false;
-			for (UInt32 j = 0; j < badregions.length; j++)
+			for (std::uint32_t j = 0; j < badregions.length; j++)
 			{
 				if (badregions.data[j] == i)
 				{
@@ -156,30 +156,30 @@ namespace Undaunted {
 			//Some regions are dodgy
 			if (!badRegion)
 			{
-				_MESSAGE("processing worldSpace %08X", i);
-				TESRegion* test = (TESRegion*)handler->regionList->GetNthItem(i);
+				logger::info("processing worldSpace %08X", i);
+				RE::TESRegion* test = (RE::TESRegion*)handler->regionList->GetNthItem(i);
 				if (test != NULL)
 				{
 					if (test->worldSpace == NULL)
 					{
-						_MESSAGE("worldSpace %08X is null", i);
+						logger::info("worldSpace %08X is null", i);
 					}
 					else
 					{
-						_MESSAGE("worldSpace %08X is not null", i);
-						_MESSAGE("processing worldSpace %p", test->worldSpace);
+						logger::info("worldSpace %08X is not null", i);
+						logger::info("processing worldSpace %p", test->worldSpace);
 						//Yeah. So some regions are really low in the memory stack?
 						//They blow up if you try and use them so we filter out worldspace pointers below 000000000002433E
 						if ((uintptr_t)test->worldSpace <= 148286)
 						{
-							_MESSAGE("Low Level Region, Ignoring.");
+							logger::info("Low Level Region, Ignoring.");
 						}
 						else
 						{
-							TESObjectCELL* cell = test->worldSpace->unk088;
+							RE::TESObjectCELL* cell = test->worldSpace->unk088;
 							if (cell != NULL)
 							{
-								_MESSAGE("unk088 is not null for worldspace %08x", i);
+								logger::info("unk088 is not null for worldspace %08x", i);
 								int numberofRefs = papyrusCell::GetNumRefs(cell, 0);
 								if (numberofRefs > 0)
 								{
@@ -205,22 +205,22 @@ namespace Undaunted {
 							}
 							else
 							{
-								_MESSAGE("unk088 is null for worldspace %08x", i);
+								logger::info("unk088 is null for worldspace %08x", i);
 							}
 						}
 					}
 				}
 				else
 				{
-					_MESSAGE("RegionList %08X is null", i);
+					logger::info("RegionList %08X is null", i);
 				}
 			}
 		}
-		_MESSAGE("worldCellList built. %i Entries", worldCellList.length);
+		logger::info("worldCellList built. %i Entries", worldCellList.length);
 		worldCellListBuilt = true;
 		for (int i = 0; i < worldCellList.length; i++)
 		{
-			_MESSAGE("WorldName: %s", worldCellList.data[i].world->editorId.Get());
+			logger::info("WorldName: %s", worldCellList.data[i].world->editorId.Get());
 		}
 	}
 
@@ -231,7 +231,7 @@ namespace Undaunted {
 		return worldCellList.data[worldcellid];
 	}
 
-	WorldCell GetNamedWorldCell(BSFixedString WorldspaceName)
+	WorldCell GetNamedWorldCell(RE::BSFixedString WorldspaceName)
 	{
 		for (int i = 0; i < worldCellList.length; i++)
 		{
@@ -239,7 +239,7 @@ namespace Undaunted {
 				return worldCellList.data[i];
 		}
 
-		_MESSAGE("Named World Cell not found: %s", WorldspaceName.Get());
+		logger::info("Named World Cell not found: %s", WorldspaceName.Get());
 		return WorldCell();
 	}
 
@@ -247,7 +247,7 @@ namespace Undaunted {
 	{
 		if (object != NULL)
 		{
-			_MESSAGE("Moving %08X to %08X in %s", object->formID, cell->formID, worldspace->editorId.Get());
+			logger::info("Moving %08X to %08X in %s", object->formID, cell->formID, worldspace->editorId.Get());
 			NiPoint3 finalPos(pos);
 			MoveRef(object, cell, worldspace, finalPos, rot);
 		}
@@ -283,18 +283,18 @@ namespace Undaunted {
 	{
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\UndauntedRift.pas");
 		FormRefList list = FormRefList();
-		TESObjectCELL* parentCell = GetPlayer()->parentCell;
+		RE::TESObjectCELL* parentCell = RE::PlayerCharacter::GetSingleton()->parentCell;
 		int numberofRefs = papyrusCell::GetNumRefs(parentCell, 0);
 		//Right so instead of faffing about creating a sse edit script that can read in files we'll just generate an sse script.
-		_MESSAGE("unit userscript;uses SkyrimUtils;uses mteFunctions;");
-		_MESSAGE("function Process(e: IInterface): integer;");
-		_MESSAGE("var cell: IInterface; ref: IInterface;");
-		_MESSAGE("begin Result := 0; if not (Signature(e) = 'CELL') then begin Exit; end; cell := createRecord(GetFile(e), 'CELL');");
-		_MESSAGE("SetElementEditValues(cell, 'EDID', '%s');","Cell Name");
-		_MESSAGE("SetElementEditValues(cell, 'LTMP', '%s');", "0006AB01");//Lighting template
+		logger::info("unit userscript;uses SkyrimUtils;uses mteFunctions;");
+		logger::info("function Process(e: IInterface): integer;");
+		logger::info("var cell: IInterface; ref: IInterface;");
+		logger::info("begin Result := 0; if not (Signature(e) = 'CELL') then begin Exit; end; cell := createRecord(GetFile(e), 'CELL');");
+		logger::info("SetElementEditValues(cell, 'EDID', '%s');","Cell Name");
+		logger::info("SetElementEditValues(cell, 'LTMP', '%s');", "0006AB01");//Lighting template
 		for (int i = 0; i < numberofRefs; i++)
 		{
-			TESObjectREFR* ref = papyrusCell::GetNthRef(parentCell, i, 0);
+			RE::TESObjectREFR* ref = papyrusCell::GetNthRef(parentCell, i, 0);
 			if (ref != NULL)
 			{
 				if (ref->formID != NULL)
@@ -304,7 +304,7 @@ namespace Undaunted {
 					saveref.pos = ref->pos - GetPlayer()->pos;
 					saveref.rot = ref->rot;
 					saveref.scale = ref->unk90;
-					saveref.type = static_cast<FormType>(ref->baseForm->formType);
+					saveref.type = static_cast<RE::FormType>(ref->baseForm->formType);
 					if ((saveref.type == kFormType_Static
 						//|| saveref.type == kFormType_LeveledCharacter
 						|| saveref.type == kFormType_Activator
@@ -325,21 +325,21 @@ namespace Undaunted {
 						|| saveref.type == kFormType_NAVI) 
 						&& saveref.formId < 4278190000)
 					{
-						_MESSAGE("ref: = Add(cell, 'REFR', true);");
-						_MESSAGE("SetElementEditValues(ref, 'EDID', GetElementEditValues(getRecordByFormID('%08X'), 'EDID'));", saveref.formId);
-						_MESSAGE("SetElementEditValues(ref, 'NAME', '%08X');", saveref.formId);
-						_MESSAGE("SetElementEditValues(ref, 'XSCL', '%f');", ((float)saveref.scale)/100);
-						_MESSAGE("seev(ref, 'DATA\\[0]\\[0]', %f);", saveref.pos.x);
-						_MESSAGE("seev(ref, 'DATA\\[0]\\[1]', %f);", saveref.pos.y);
-						_MESSAGE("seev(ref, 'DATA\\[0]\\[2]', %f);", saveref.pos.z);
-						_MESSAGE("seev(ref, 'DATA\\[1]\\[0]', %f);", saveref.rot.x * (180.0 / 3.141592653589793238463));
-						_MESSAGE("seev(ref, 'DATA\\[1]\\[1]', %f);", saveref.rot.y * (180.0 / 3.141592653589793238463));
-						_MESSAGE("seev(ref, 'DATA\\[1]\\[2]', %f);", saveref.rot.z * (180.0 / 3.141592653589793238463));
+						logger::info("ref: = Add(cell, 'REFR', true);");
+						logger::info("SetElementEditValues(ref, 'EDID', GetElementEditValues(getRecordByFormID('%08X'), 'EDID'));", saveref.formId);
+						logger::info("SetElementEditValues(ref, 'NAME', '%08X');", saveref.formId);
+						logger::info("SetElementEditValues(ref, 'XSCL', '%f');", ((float)saveref.scale)/100);
+						logger::info("seev(ref, 'DATA\\[0]\\[0]', %f);", saveref.pos.x);
+						logger::info("seev(ref, 'DATA\\[0]\\[1]', %f);", saveref.pos.y);
+						logger::info("seev(ref, 'DATA\\[0]\\[2]', %f);", saveref.pos.z);
+						logger::info("seev(ref, 'DATA\\[1]\\[0]', %f);", saveref.rot.x * (180.0 / 3.141592653589793238463));
+						logger::info("seev(ref, 'DATA\\[1]\\[1]', %f);", saveref.rot.y * (180.0 / 3.141592653589793238463));
+						logger::info("seev(ref, 'DATA\\[1]\\[2]', %f);", saveref.rot.z * (180.0 / 3.141592653589793238463));
 					}
 				}
 			}
 		}
-		_MESSAGE("end;function Finalize: integer;begin Result := 0;  FinalizeUtils();end;end.");
+		logger::info("end;function Finalize: integer;begin Result := 0;  FinalizeUtils();end;end.");
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\Undaunted.log");
 	}
 
@@ -372,26 +372,26 @@ namespace Undaunted {
 	void InitBakedRiftStartMarkers()
 	{
 
-		_MESSAGE("Finding all Rift Start Markers");
+		logger::info("Finding all Rift Start Markers");
 		RiftStartMarkers = RefList();
-		DataHandler* dataHandler = GetDataHandler();
+		auto dataHandler = RE::TESDataHandler::GetSingleton();
 		const ModInfo* modInfo = dataHandler->LookupModByName("Undaunted.esp");
 		if (modInfo == NULL)
 		{
-			_MESSAGE("Can't find Undaunted.esp. What the hell?");
+			logger::info("Can't find Undaunted.esp. What the hell?");
 			return;
 		}
-		UInt32 FormId = (modInfo->modIndex << 24) + 915120; //040DF6B0 - 01_Undaunted_RiftEnteranceMarker
-		_MESSAGE("FormId: %08X", FormId);
-		auto cellcount = GetDataHandler()->cellList.m_size;
-		_MESSAGE("cellcount: %08X", cellcount);
+		std::uint32_t FormId = (modInfo->modIndex << 24) + 915120; //040DF6B0 - 01_Undaunted_RiftEnteranceMarker
+		logger::info("FormId: %08X", FormId);
+		auto cellcount = dataHandler->cellList.m_size;
+		logger::info("cellcount: %08X", cellcount);
 		for (int i = 0; i < cellcount; i++)
 		{
-			TESObjectCELL* parentCell = GetDataHandler()->cellList.m_data[i];
+			RE::TESObjectCELL* parentCell = dataHandler->cellList.m_data[i];
 			int numberofRefs = papyrusCell::GetNumRefs(parentCell, 0);
 			for (int j = 0; j < numberofRefs; j++)
 			{
-				TESObjectREFR* ref = papyrusCell::GetNthRef(parentCell, j, 0);
+				RE::TESObjectREFR* ref = papyrusCell::GetNthRef(parentCell, j, 0);
 				if (ref != NULL)
 				{
 					if (ref->formID != NULL)
@@ -412,18 +412,18 @@ namespace Undaunted {
 
 
 	int currentRiftTarget = 0;
-	TESObjectREFR* GetRandomBakedRiftStartMarker()
+	RE::TESObjectREFR* GetRandomBakedRiftStartMarker()
 	{
 		srand(time(NULL));
 		currentRiftTarget++;
 		if (currentRiftTarget >= RiftStartMarkers.length)
 		{
 			//Reshuffle deck
-			_MESSAGE("Reshuffle deck");
+			logger::info("Reshuffle deck");
 			ShuffleBakedRifts();
 			currentRiftTarget = 0;
 		}
-		_MESSAGE("currentRiftTarget: %i / %i", currentRiftTarget, RiftStartMarkers.length);
+		logger::info("currentRiftTarget: %i / %i", currentRiftTarget, RiftStartMarkers.length);
 
 		Ref target = RiftStartMarkers.data[currentRiftTarget];
 
@@ -435,16 +435,16 @@ namespace Undaunted {
 if (SpawnLocref == NULL)
 {
 	TESObjectCELL* here = GetPlayer()->parentCell;
-	_MESSAGE("Here form id %08X", here->formID);
-	_MESSAGE("Cell list Size %08X", GetDataHandler()->cellList.m_size);
-	UInt32 cellcount = GetDataHandler()->cellList.m_size;
+	logger::info("Here form id %08X", here->formID);
+	logger::info("Cell list Size %08X", GetDataHandler()->cellList.m_size);
+	std::uint32_t cellcount = GetDataHandler()->cellList.m_size;
 	for (int i = 0; i < cellcount; i++)
 	{
 		TESObjectCELL* parentCell = GetDataHandler()->cellList.m_data[i];
-		_MESSAGE("Cell form id %08X", parentCell->formID);
-		_MESSAGE("Cell form id %08X", parentCell->formID);
+		logger::info("Cell form id %08X", parentCell->formID);
+		logger::info("Cell form id %08X", parentCell->formID);
 		int numberofRefs = papyrusCell::GetNumRefs(parentCell, 0);
-		_MESSAGE("Num Ref: %i", numberofRefs);
+		logger::info("Num Ref: %i", numberofRefs);
 		SpawnMonstersInCell(1, 0x06001DFC, parentCell);
 	}
 }

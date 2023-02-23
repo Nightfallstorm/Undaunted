@@ -6,12 +6,12 @@
 namespace Undaunted
 {
 	//Regions/Worldspaces
-	void AddBadRegionToConfig(UInt32 region);
+	void AddBadRegionToConfig(std::uint32_t region);
 	IntList GetBadRegions();
 
 
 	//Groups
-	int AddGroup(std::string questText, UInt32 minlevel, UInt32 maxlevel, UnStringlist tags);
+	int AddGroup(std::string questText, std::uint32_t minlevel, std::uint32_t maxlevel, UnStringlist tags);
 	void AddMembertoGroup(int id, GroupMember member);
 	GroupList GetRandomGroup();
 	GroupList GetRandomTaggedGroup(std::string tag);
@@ -21,9 +21,9 @@ namespace Undaunted
 
 	//General
 	void AddConfigValue(std::string key, std::string value);
-	UInt32 GetConfigValueInt(std::string key);
-	void SetPlayerLevel(UInt32 level);
-	UInt32 GetPlayerLevel();
+	std::uint32_t GetConfigValueInt(std::string key);
+	void SetPlayerLevel(std::uint32_t level);
+	std::uint32_t GetPlayerLevel();
 
 	//RewardBlacklist
 	void AddRewardBlacklist(std::string key);

@@ -31,7 +31,7 @@ namespace Undaunted
 		return this;
 	}
 
-	void GroupList::SetGroupMemberComplete(UInt32 id)
+	void GroupList::SetGroupMemberComplete(std::uint32_t id)
 	{
 		for (int i = 0; i < this->length; i++)
 		{
@@ -40,7 +40,7 @@ namespace Undaunted
 				if (id == this->data[i].objectRef->formID)
 				{
 					this->data[i].isComplete = true;
-					_MESSAGE("SetGroupMemberComplete: %08X ", id);
+					logger::info("SetGroupMemberComplete: %08X ", id);
 					return;
 				}
 			}
@@ -72,7 +72,7 @@ namespace Undaunted
 			TESForm* spawnForm = LookupFormByID(this->FormId);
 			if (spawnForm == NULL)
 			{
-				_MESSAGE("Failed to Spawn. Form Invalid");
+				logger::info("Failed to Spawn. Form Invalid");
 			}
 			else
 			{

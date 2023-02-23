@@ -1,5 +1,5 @@
 #include "RewardUtils.h"
-#include <Undaunted\ConfigUtils.h>
+#include "ConfigUtils.h"
 
 namespace Undaunted
 {
@@ -28,10 +28,10 @@ namespace Undaunted
 	}
 
 	int loopcount = 0;
-	bool isFormInBlacklist(UInt32 formid)
+	bool isFormInBlacklist(std::uint32_t formid)
 	{
 		auto blacklist = getRewardBlacklist();
-		DataHandler* dataHandler = GetDataHandler();
+		auto dataHandler = RE::TESDataHandler::GetSingleton();
 		for (int i = 0; i < blacklist.length; i++)
 		{
 			auto mod = dataHandler->LookupModByName(blacklist.data[i].value.c_str());
@@ -48,22 +48,22 @@ namespace Undaunted
 		return false;
 	}
 
-	UInt32 LastReward = 0;
+	std::uint32_t LastReward = 0;
 
-	UInt32 GetReward(UInt32 rewardOffset, UInt32 playerlevel)
+	std::uint32_t GetReward(std::uint32_t rewardOffset, std::uint32_t playerlevel)
 	{
 		srand(time(0) + rewardOffset);
-		DataHandler* dataHandler = GetDataHandler();
-		std::set<TESObjectARMO*> exclude;
-		TESRace* race = NULL;
-		for (UInt32 i = 0; i < dataHandler->races.count; i++)
+		auto dataHandler = RE::TESDataHandler::GetSingleton();
+		std::set<RE::TESObjectARMO*> exclude;
+		RE::TESRace* race = NULL;
+		for (std::uint32_t i = 0; i < dataHandler->races.count; i++)
 		{
 			dataHandler->races.GetNthItem(i, race);
 			if (race->skin.skin)
 				exclude.insert(race->skin.skin);
 		}
-		TESNPC* npc = NULL;
-		for (UInt32 i = 0; i < dataHandler->npcs.count; i++)
+		RE::TESNPC* npc = NULL;
+		for (std::uint32_t i = 0; i < dataHandler->npcs.count; i++)
 		{
 			dataHandler->npcs.GetNthItem(i, npc);
 			if (npc->skinForm.skin)
@@ -96,13 +96,13 @@ namespace Undaunted
 				}
 				foundvalidrewardtype = true;
 			}
-			TESObjectWEAP* weapon = NULL;
-			TESObjectARMO* armour = NULL;
-			AlchemyItem* potion = NULL;
-			ScrollItem* scroll = NULL;
-			IngredientItem* ingre = NULL;
-			TESObjectBOOK* book = NULL;
-			TESObjectMISC* misc = NULL;
+			RE::TESObjectWEAP* weapon = NULL;
+			RE::TESObjectARMO* armour = NULL;
+			RE::AlchemyItem* potion = NULL;
+			RE::ScrollItem* scroll = NULL;
+			RE::IngredientItem* ingre = NULL;
+			RE::TESObjectBOOK* book = NULL;
+			RE::TESObjectMISC* misc = NULL;
 			//type = 3;
 			switch (type)
 			{
@@ -188,16 +188,16 @@ namespace Undaunted
 		}
 	}
 
-	bool IsWeaponLevelOk(TESObjectWEAP* weapon, UInt32 playerlevel)
+	bool IsWeaponLevelOk(RE::TESObjectWEAP* weapon, std::uint32_t playerlevel)
 	{
-		UInt16 attackDamage = weapon->damage.attackDamage * 100;
-		UInt32 Moneyvalue = weapon->value.value;
+		std::uint16_t attackDamage = weapon->damage.attackDamage * 100;
+		std::uint32_t Moneyvalue = weapon->value.value;
 		int targetMaxLevel = GetConfigValueInt("RewardTargetMaxLevel");
 		float levelcoeffient = playerlevel + GetConfigValueInt("RewardPlayerLevelBoost");
 		float minDamage = GetConfigValueInt("RewardWeaponMinDamage");
 		float maxDamage = GetConfigValueInt("RewardWeaponMaxDamage");
 		float partcoeffient = (maxDamage - minDamage) / targetMaxLevel;
-		//_MESSAGE("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
+		//logger::info("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
 
 		int minValueForPart = GetConfigValueInt("RewardWeaponMinValue");
 		int maxValueForPart = GetConfigValueInt("RewardWeaponMaxValue");
@@ -222,15 +222,15 @@ namespace Undaunted
 		return false;
 	}
 
-	bool IsArmourLevelOk(TESObjectARMO* armour, UInt32 playerlevel)
+	bool IsArmourLevelOk(RE::TESObjectARMO* armour, std::uint32_t playerlevel)
 	{
-		UInt32 Armourvalue = armour->armorValTimes100;
-		UInt32 Moneyvalue = armour->value.value;
-		UInt32 mask = armour->bipedObject.data.parts;
-		UInt32 weightClass = armour->bipedObject.data.weightClass;
+		std::uint32_t Armourvalue = armour->armorValTimes100;
+		std::uint32_t Moneyvalue = armour->value.value;
+		std::uint32_t mask = armour->bipedObject.data.parts;
+		std::uint32_t weightClass = armour->bipedObject.data.weightClass;
 		int targetMaxLevel = GetConfigValueInt("RewardTargetMaxLevel");
 		float levelcoeffient = playerlevel;
-//		_MESSAGE("Level %08X, weightClass: %08X, Value: %i, mask: %08X,  Moneyvalue: %08X", playerlevel, weightClass, Armourvalue, mask, Moneyvalue);
+//		logger::info("Level %08X, weightClass: %08X, Value: %i, mask: %08X,  Moneyvalue: %08X", playerlevel, weightClass, Armourvalue, mask, Moneyvalue);
 		int minArmourForPart = 0;
 		int maxArmourForPart = 0;
 		for (int i = 0; i < armour->keyword.numKeywords; i++)
@@ -271,7 +271,7 @@ namespace Undaunted
 				maxArmourForPart = GetConfigValueInt("Reward_Armour_Light_Shield_Value_Max");
 			}
 			float partcoeffient = (maxArmourForPart - minArmourForPart) / targetMaxLevel;
-//			_MESSAGE("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
+//			logger::info("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
 			if (Armourvalue < minArmourForPart + (levelcoeffient * partcoeffient))
 			{
 				return true;
@@ -307,7 +307,7 @@ namespace Undaunted
 				maxArmourForPart = GetConfigValueInt("Reward_Armour_Heavy_Shield_Value_Max");
 			}
 			float partcoeffient = (maxArmourForPart - minArmourForPart) / targetMaxLevel;
-//			_MESSAGE("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
+//			logger::info("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
 			if (Armourvalue < minArmourForPart + (levelcoeffient * partcoeffient))
 			{
 				return true;
@@ -349,7 +349,7 @@ namespace Undaunted
 				maxValueForPart = GetConfigValueInt("Reward_Armour_Clothes_Circlet_Value_Max");
 			}
 			float partcoeffient = (maxValueForPart - minValueForPart) / targetMaxLevel;
-//			_MESSAGE("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
+//			logger::info("levelcoeffient: %f , partcoeffient: %f", levelcoeffient, partcoeffient);
 			if (Moneyvalue < minValueForPart + (levelcoeffient * partcoeffient))
 			{
 				return true;

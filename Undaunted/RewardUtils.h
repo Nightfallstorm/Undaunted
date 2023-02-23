@@ -1,7 +1,7 @@
 #include "SKSELink.h"
 
 namespace Undaunted {
-	UInt32 GetReward(UInt32 rewardOffset, UInt32 playerlevel);
-	bool IsWeaponLevelOk(TESObjectWEAP* weapon, UInt32 playerlevel);
-	bool IsArmourLevelOk(TESObjectARMO* armour, UInt32 playerlevel);
+	std::uint32_t GetReward(std::uint32_t rewardOffset, std::uint32_t playerlevel);
+	bool IsWeaponLevelOk(RE::TESObjectWEAP* weapon, std::uint32_t playerlevel);
+	bool IsArmourLevelOk(RE::TESObjectARMO* armour, std::uint32_t playerlevel);
 }
