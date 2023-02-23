@@ -1,122 +1,103 @@
-#include <Undaunted\MyPlugin.h>
-#include <Undaunted\BountyManager.h>
-#include <Undaunted\ConfigUtils.h>
-#include <Undaunted\SKSELink.h>
-#include <Undaunted\StartupManager.h>
-#define RUNTIME_VERSION_1_6_640	MAKE_EXE_VERSION(1, 6, 640)	// 0x01062800	the hotfix
+#include <MyPlugin.h>
+#include <BountyManager.h>
+#include <ConfigUtils.h>
+#include <SKSELink.h>
+#include <StartupManager.h>
 
-static PluginHandle					g_pluginHandle = kPluginHandle_Invalid;
-static SKSEPapyrusInterface         * g_papyrus = NULL;
-SKSESerializationInterface* g_serialization = NULL;
-SKSEMessagingInterface* g_messageInterface = NULL;
-
-extern "C" {
-	__declspec(dllexport) SKSEPluginVersionData SKSEPlugin_Version =
-	{
-		SKSEPluginVersionData::kVersion,
-
-		1,
-		"Undaunted",
-
-		" ",
-		" ",
-
-		0,	// not version independent (extended field)
-		0,	// not version independent
-		{ RUNTIME_VERSION_1_6_640, 0 },	// compatible with 1.6.640
-
-		0,	// works with any version of the script extender. you probably do not need to put anything here
-	};
-};
-
-
-extern "C"	{
-
-	bool SKSEPlugin_Query(const SKSEInterface * skse, PluginInfo * info)	{	// Called by SKSE to learn about this plugin and check that it's safe to load it
-		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\Undaunted.log");
-		gLog.SetPrintLevel(IDebugLog::kLevel_Error);
-		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
-	
-		_MESSAGE("Undaunted");
-
-		// populate info structure
-		info->infoVersion =	PluginInfo::kInfoVersion;
-		info->name =		"Undaunted";
-		info->version =		1;
-
-		// store plugin handle so we can identify ourselves later
-		g_pluginHandle = skse->GetPluginHandle();
-
-		if(skse->isEditor)
-		{
-			_MESSAGE("loaded in editor, marking as incompatible");
-
-			return false;
-		}
-		g_serialization = (SKSESerializationInterface*)skse->QueryInterface(kInterface_Serialization);
-		g_messageInterface = (SKSEMessagingInterface*)skse->QueryInterface(kInterface_Messaging);
-		// ### do not do anything else in this callback
-		// ### only fill out PluginInfo and return true/false
-
-		// supported runtime version
-		return true;
-	}
-
-	void SKSEMessageReceptor(SKSEMessagingInterface::Message* msg)
-	{
-		static bool active = true;
-		if (!active)
-			return;
-
-		if (msg->type == SKSEMessagingInterface::kMessage_PreLoadGame)
-		{
-			//We're loading the game. Clear up any bounty data.
-			_MESSAGE("kMessage_PreLoadGame rechieved, clearing bounty data.");
-			if (Undaunted::BountyManager::getInstance()->activebounties.length > 0)
-			{
-				for (int i = 0; i < Undaunted::BountyManager::getInstance()->activebounties.length; i++)
-				{
-					Undaunted::BountyManager::getInstance()->ClearBountyData(i);
-				}
+void MessageHandler(SKSE::MessagingInterface::Message* a_message)
+{
+	switch (a_message->type) {
+	case SKSE::MessagingInterface::kPreLoadGame:
+		//We're loading the game. Clear up any bounty data.
+		logger::info("kMessage_PreLoadGame rechieved, clearing bounty data.");
+		if (Undaunted::BountyManager::getInstance()->activebounties.length > 0) {
+			for (int i = 0; i < Undaunted::BountyManager::getInstance()->activebounties.length; i++) {
+				Undaunted::BountyManager::getInstance()->ClearBountyData(i);
 			}
 		}
-		//Register to recieve interface from Enchantment Framework
-		//if (msg->type == SKSEMessagingInterface::kMessage_PostLoad)
-
-
-		//kMessage_InputLoaded only sent once, on initial Main Menu load
-		//else if (msg->type == SKSEMessagingInterface::kMessage_InputLoaded)
-
+	case SKSE::MessagingInterface::kNewGame:
+	case SKSE::MessagingInterface::kPostLoad:
+	case SKSE::MessagingInterface::kPostLoadGame:
+	case SKSE::MessagingInterface::kPostPostLoad:
+	default:
+		break;
 	}
 
-	bool SKSEPlugin_Load(const SKSEInterface * skse)	{	// Called by SKSE to load this plugin
+	//Register to recieve interface from Enchantment Framework
+	//if (msg->type == SKSEMessagingInterface::kMessage_PostLoad)
+
+	//kMessage_InputLoaded only sent once, on initial Main Menu load
+	//else if (msg->type == SKSEMessagingInterface::kMessage_InputLoaded)
+}
+
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+	SKSE::PluginVersionData v;
+	v.PluginVersion(Version::MAJOR);
+	v.PluginName(Version::PROJECT);
+	v.AuthorName("Nightfallstorm");
+	v.UsesAddressLibrary(true);
+	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST_AE });
+	v.HasNoStructUse(true);
+
+	return v;
+}();
+
+
+extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+{
+	a_info->infoVersion = SKSE::PluginInfo::kVersion;
+	a_info->name = Version::PROJECT.data();
+	a_info->version = Version::MAJOR;
+	logger::info("Undaunted");
+	if (a_skse->IsEditor()) {
+		logger::critical("Loaded in editor, marking as incompatible"sv);
+		return false;
+	}
+
+	const auto ver = a_skse->RuntimeVersion();
+
+	return true;
+}
+
+void InitializeLog()
+{
+	auto path = logger::log_directory();
+	if (!path) {
+		//stl::report_and_fail("Failed to find standard logging directory"sv); // Doesn't work in VR
+	}
+
+	*path /= Version::PROJECT;
+	*path += ".log"sv;
+	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+
+	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+
+	log->set_level(spdlog::level::info);
+	log->flush_on(spdlog::level::info);
+
+	spdlog::set_default_logger(std::move(log));
+	spdlog::set_pattern("[%H:%M:%S:%e] %v"s);
+
+	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
+}
+
+extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse) {  // Called by SKSE to load this plugin
+		InitializeLog();
+
+		logger::info("Undaunted");
+		logger::info("Loading Undaunted..");
 		
-		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\Undaunted.log");
-		gLog.SetPrintLevel(IDebugLog::kLevel_Error);
-		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
-
-		_MESSAGE("Undaunted");
-		_MESSAGE("Loading Undaunted..");
-
-		g_papyrus = (SKSEPapyrusInterface *)skse->QueryInterface(kInterface_Papyrus);
-		_MESSAGE("g_papyrus");
-
 		//TODO FIX
-		//g_messageInterface->RegisterListener(g_pluginHandle, "SKSE", SKSEMessageReceptor);
+		//auto messaging = SKSE::GetMessagingInterface();
+		//messaging->RegisterListener(MessageHandler);
+
 		//Check if the function registration was a success...
-		_MESSAGE("RegisterListener");
+		logger::info("RegisterListener");
 
-		bool btest = g_papyrus->Register(Undaunted::RegisterFuncs);
-		_MESSAGE("g_papyrus->Register");
+		auto papyrus = SKSE::GetPapyrusInterface();
+		papyrus->Register(Undaunted::RegisterFuncs);
+		logger::info("Register Succeeded");
 
-
-		Undaunted::GetDataHandler();
-		Undaunted::GetPlayer();
-
-		if (btest) {
-			_MESSAGE("Register Succeeded");
-		}
-		_MESSAGE("SKSEPlugin_Load Succeeded");
+		logger::info("SKSEPlugin_Load Succeeded");
 		return true;
-	}
-};
+}
