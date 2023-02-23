@@ -1,7 +1,0 @@
-﻿  Using triplet "x64-windows" from "C:\git\vcpkg-master\installed\x64-windows\"
-  BranchTrampoline.cpp
-  Relocation.cpp
-  SafeWrite.cpp
-  Utilities.cpp
-  Generating Code...
-  skse64_common.vcxproj -> C:\git\Undaunted\x64\Debug\skse64_common.lib
