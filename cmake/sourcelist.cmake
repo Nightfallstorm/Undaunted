@@ -1,0 +1,23 @@
+set(sources ${sources}
+	Undaunted/BlockLibary.cpp
+	Undaunted/BountyList.cpp
+	Undaunted/BountyManager.cpp
+	Undaunted/ConfigUtils.cpp
+	Undaunted/FormRefList.cpp
+	Undaunted/GroupList.cpp
+	Undaunted/IntList.cpp
+	Undaunted/ListLibary.cpp
+	Undaunted/LocationUtils.cpp
+	Undaunted/MyPlugin.cpp
+	Undaunted/main.cpp
+	Undaunted/PCH.cpp
+	Undaunted/RefList.cpp
+	Undaunted/RewardUtils.cpp
+	Undaunted/RiftList.cpp
+	Undaunted/SafezoneList.cpp
+	Undaunted/SKSELink.cpp
+	Undaunted/SpawnUtils.cpp
+	Undaunted/StartupManager.cpp
+	Undaunted/UnStringList.cpp
+	Undaunted/WorldCellList.cpp
+)

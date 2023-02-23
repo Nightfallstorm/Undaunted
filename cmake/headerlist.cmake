@@ -1,0 +1,22 @@
+set(headers ${headers}
+	Undaunted/BlockLibary.h
+	Undaunted/BountyList.h
+	Undaunted/BountyManager.h
+	Undaunted/ConfigUtils.h
+	Undaunted/FormRefList.h
+	Undaunted/GroupList.h
+	Undaunted/IntList.h
+	Undaunted/ListLibary.h
+	Undaunted/LocationUtils.h
+	Undaunted/MyPlugin.h
+	Undaunted/PCH.h
+	Undaunted/RefList.h
+	Undaunted/RewardUtils.h
+	Undaunted/RiftList.h
+	Undaunted/SafezoneList.h
+	Undaunted/SKSELink.h
+	Undaunted/SpawnUtils.h
+	Undaunted/StartupManager.h
+	Undaunted/UnStringList.h
+	Undaunted/WorldCellList.h
+)
