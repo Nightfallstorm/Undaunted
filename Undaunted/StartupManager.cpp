@@ -11,7 +11,7 @@ namespace Undaunted {
 	RSJresource currentfile;
 	void LoadJson(const char* filepath)
 	{
-		logger::info("Loading %s", filepath);
+		logger::info("Loading {}", filepath);
 		std::ifstream t(filepath);
 		t.seekg(0, std::ios::end);
 		size_t size = t.tellg();
@@ -28,7 +28,7 @@ namespace Undaunted {
 		RSJresource settings = currentfile; 
 
 		auto data = settings.as_array();
-		logger::info("size: %i", data.size());
+		logger::info("size: {}", data.size());
 		for (int i = 0; i < data.size(); i++)
 		{
 			auto inner = data[i].as_array();
@@ -65,7 +65,7 @@ namespace Undaunted {
 			zone.PosZ = PosZ;
 			zone.Radius = Radius;
 			AddSafezone(zone);
-			logger::info("Safezone %s, %s, %i, %i, %i, %i", Zonename.c_str(), Worldspace.c_str(), PosX, PosY, PosZ, Radius);
+			logger::info("Safezone {}, {}, {}, {}, {}, {}", Zonename.c_str(), Worldspace.c_str(), PosX, PosY, PosZ, Radius);
 		}
 	}
 
@@ -94,7 +94,7 @@ namespace Undaunted {
 		}
 		form = tempform;
 		logger::info("modIndex: ", modInfo->compileIndex);
-		logger::info("form id: %i", form);
+		logger::info("form id: {}", form);
 		return form;
 	}
 
@@ -110,13 +110,13 @@ namespace Undaunted {
 			std::transform(wstring.begin(), wstring.end(), std::back_inserter(filename), [](wchar_t c) {
 				return (char)std::tolower((char)c);
 			});
-			logger::info("file: %s", filename.c_str());
+			logger::info("file: {}", filename.c_str());
 			if (entry.is_regular_file())
 			{
 				LoadJson(filename.c_str());
 				RSJresource settings = currentfile;
 				auto data = settings.as_array();
-				logger::info("size: %i", data.size());
+				logger::info("size: {}", data.size());
 				for (int i = 0; i < data.size(); i++)
 				{
 					auto group = data[i].as_array();
@@ -133,7 +133,7 @@ namespace Undaunted {
 					while ((pos = tags.find(delimiter)) != std::string::npos) {
 						token = tags.substr(0, pos);
 						std::transform(token.begin(), token.end(), token.begin(), ::toupper);
-						logger::info("tags: %s", token.c_str());
+						logger::info("tags: {}", token.c_str());
 						taglist.AddItem(token);
 						tags.erase(0, pos + delimiter.length());
 					}
@@ -142,7 +142,7 @@ namespace Undaunted {
 					const RE::TESFile* modInfo = dataHandler->LookupModByName(modreq.c_str());
 					if (modInfo != NULL && modInfo->compileIndex != 0xFF)
 					{
-						logger::info("tags: %s", tags.c_str());
+						logger::info("tags: {}", tags.c_str());
 						int groupid = AddGroup(groupname, minlevel, maxlevel, taglist);
 						for (int j = 1; j < group.size(); j++)
 						{
@@ -166,6 +166,6 @@ namespace Undaunted {
 				}
 			}
 		}
-		logger::info("Groups loaded: %i", GetGroupCount());
+		logger::info("Groups loaded: {}", GetGroupCount());
 	}
 }

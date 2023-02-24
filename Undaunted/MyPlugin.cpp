@@ -14,7 +14,7 @@ using WorldCell = Undaunted::WorldCell;
 namespace UndauntedPapyrus {
 	std::uint32_t CreateBounty(RE::StaticFunctionTag* base) {
 		int result = BountyManager::getInstance()->activebounties.length;
-		logger::info("hook_CreateBounty result: %08X", result);
+		logger::info("hook_CreateBounty result: {:x}", result);
 		Bounty newBounty = Bounty();
 		BountyManager::getInstance()->activebounties.AddItem(newBounty);
 		return result;
@@ -22,7 +22,7 @@ namespace UndauntedPapyrus {
 
 	// Triggers a new bounty stage to start.
 	float StartBounty(RE::StaticFunctionTag* base, std::uint32_t BountyId, bool nearby) {
-		logger::info("hook_StartBounty BountyId: %08X", BountyId);
+		logger::info("hook_StartBounty BountyId: {:x}", BountyId);
 		BountyManager::getInstance()->StartBounty(BountyId,nearby, "",NULL,"");
 		return 2;
 	}
@@ -30,7 +30,7 @@ namespace UndauntedPapyrus {
 	// Triggers a new Elite bounty stage to start.
 	float StartEliteBounty(RE::StaticFunctionTag* base, std::uint32_t BountyId, bool nearby)
 	{
-		logger::info("hook_StartEliteBounty BountyId: %08X", BountyId);
+		logger::info("hook_StartEliteBounty BountyId: {:x}", BountyId);
 		BountyManager::getInstance()->StartBounty(BountyId, nearby, "", NULL, "", "ELITE");
 		return 2;
 	}
@@ -38,7 +38,7 @@ namespace UndauntedPapyrus {
 	// Triggers a new bounty stage to start with a certain name.
 	float StartNamedBounty(RE::StaticFunctionTag* base, std::uint32_t BountyId, bool nearby, RE::BSFixedString bountyName)
 	{
-		logger::info("hook_StartNamedBounty BountyId: %08X", BountyId);
+		logger::info("hook_StartNamedBounty BountyId: {:x}", BountyId);
 		BountyManager::getInstance()->StartBounty(BountyId, nearby, bountyName.c_str(), NULL, "");
 		return 2;
 	}
@@ -47,7 +47,7 @@ namespace UndauntedPapyrus {
 	// Triggers a new bounty stage to start with a certain name.
 	float RestartNamedBounty(RE::StaticFunctionTag* base, std::uint32_t BountyId, RE::BSFixedString bountyName)
 	{
-		logger::info("hook_restartNamedBounty BountyId: %08X", BountyId);
+		logger::info("hook_restartNamedBounty BountyId: {:x}", BountyId);
 		BountyManager::getInstance()->restartBounty(BountyId,bountyName.c_str());
 		return 2;
 	}
@@ -55,7 +55,7 @@ namespace UndauntedPapyrus {
 	
 	float StartNamedBountyNearRef(RE::StaticFunctionTag* base, std::uint32_t BountyId, bool nearby, RE::BSFixedString bountyName, RE::TESObjectREFR* ref, RE::BSFixedString WorldSpaceName)
 	{
-		logger::info("hook_StartNamedBountyNearRef BountyId: %08X", BountyId);
+		logger::info("hook_StartNamedBountyNearRef BountyId: {:x}", BountyId);
 		BountyManager::getInstance()->StartBounty(BountyId, nearby, bountyName.c_str(), ref, WorldSpaceName);
 		return 2;
 	}
@@ -68,7 +68,7 @@ namespace UndauntedPapyrus {
 		auto dataHandler = RE::TESDataHandler::GetSingleton();
 		
 		for (auto mod : dataHandler->files) {
-			logger::info("Listing Mods: %s , %i, %i", mod->GetFilename(), mod->GetCompileIndex(), mod->GetSmallFileCompileIndex());
+			logger::info("Listing Mods: {} , {}, {}", mod->GetFilename(), mod->GetCompileIndex(), mod->GetSmallFileCompileIndex());
 		}
 
 		Undaunted::LoadSettings();
@@ -78,7 +78,7 @@ namespace UndauntedPapyrus {
 		Undaunted::InitBakedRiftStartMarkers();
 		Undaunted::SetPlayerLevel(playerLevel);
 		BountyManager::getInstance()->isReady = 2;
-		logger::info("ReadyState: %i ", BountyManager::getInstance()->isReady);
+		logger::info("ReadyState: {} ", BountyManager::getInstance()->isReady);
 		return true;
 	}
 
@@ -90,7 +90,7 @@ namespace UndauntedPapyrus {
 
 	bool ClaimStartupLock(RE::StaticFunctionTag* base)
 	{
-		logger::info("ReadyState: %i ", BountyManager::getInstance()->isReady);
+		logger::info("ReadyState: {} ", BountyManager::getInstance()->isReady);
 		if (BountyManager::getInstance()->isReady == 0)
 		{
 			BountyManager::getInstance()->isReady = 1;
@@ -101,7 +101,7 @@ namespace UndauntedPapyrus {
 
 	// Check if all the bounty objectives have been complete
 	bool isBountyComplete(RE::StaticFunctionTag* base, std::uint32_t BountyId) {
-		logger::info("Starting Bounty Check %08X ", BountyId);
+		logger::info("Starting Bounty Check {:x} ", BountyId);
 		if (BountyManager::getInstance()->activebounties.length < BountyId)
 		{
 			return false;
@@ -130,7 +130,7 @@ namespace UndauntedPapyrus {
 
 	// Pass the reference to the XMarker that we use as the quest target and the target of the placeatme calls
 	bool SetXMarker(RE::StaticFunctionTag* base, std::uint32_t BountyId, RE::TESObjectREFR* marker) {
-		logger::info("hook_SetXMarker %08X ", BountyId);
+		logger::info("hook_SetXMarker {} ", BountyId);
 		BountyManager::getInstance()->activebounties.data[BountyId].xmarkerref = marker;
 		return true;
 	}
@@ -138,7 +138,7 @@ namespace UndauntedPapyrus {
 	// Pass the reference to the quest objective message. This allows us to edit it from the code.
 	bool SetBountyMessageRef(RE::StaticFunctionTag* base, std::uint32_t BountyId, RE::BGSMessage* ref)
 	{
-		logger::info("hook_SetBountyMessageRef %08X ", BountyId);
+		logger::info("hook_SetBountyMessageRef {} ", BountyId);
 		BountyManager::getInstance()->activebounties.data[BountyId].bountymessageref = ref;
 		return true;
 	}
@@ -157,7 +157,7 @@ namespace UndauntedPapyrus {
 
 		if (!RE::TESDataHandler::GetSingleton()->LookupModByName(modRequirement))
 		{
-			logger::info("%s: Mod %s is not loaded", questText.c_str(), modRequirement.c_str());
+			logger::info("{}: Mod {} is not loaded", questText.c_str(), modRequirement.c_str());
 			return -1;
 		}
 		return Undaunted::AddGroup(questText.c_str(),minLevel,maxLevel, Undaunted::UnStringlist());
@@ -187,11 +187,11 @@ namespace UndauntedPapyrus {
 			}
 			else
 			{
-				logger::info("FormId  %08X Not Found in %s", FormId, ModName.c_str());
+				logger::info("FormId  {:x} Not Found in {}", FormId, ModName.c_str());
 				return std::uint32_t();
 			}
 		}
-		logger::info("Mod Not Found: %s", ModName.c_str());
+		logger::info("Mod Not Found: {}", ModName.c_str());
 		return std::uint32_t();
 	}
 
@@ -200,7 +200,7 @@ namespace UndauntedPapyrus {
 	{
 		logger::info("hook_SpawnRandomReward");
 		RE::FormID rewardid = Undaunted::GetReward(rewardOffset, playerlevel);
-		logger::info("RewardID: %08X", rewardid);
+		logger::info("RewardID: {:x}", rewardid);
 		RE::TESForm* spawnForm = RE::TESForm::LookupByID(rewardid);
 		return spawnForm;
 	}
@@ -249,7 +249,7 @@ namespace UndauntedPapyrus {
 	// This means we can take all bounties off the blacklist.
 	void PlayerTraveled(RE::StaticFunctionTag* base, float distance)
 	{
-		logger::info("hook_PlayerTraveled %f hours", distance);
+		logger::info("hook_PlayerTraveled {} hours", distance);
 		//If a bounty is running and we fast travel then clean it up.
 		//If it hasn't started yet we don't need to worry.
 		if (distance > 1.5f)
@@ -278,7 +278,7 @@ namespace UndauntedPapyrus {
 	// Returns the references of all the spawned objects of a certain type
 	std::vector<RE::TESObjectREFR*> GetBountyObjectRefs(RE::StaticFunctionTag* base, std::uint32_t BountyId, RE::BSFixedString bountyType)
 	{
-		logger::info("hook_GetBountyObjectRefs %08X ", BountyId);
+		logger::info("hook_GetBountyObjectRefs {:x} ", BountyId);
 		std::string type = bountyType.c_str();
 		std::transform(type.begin(), type.end(), type.begin(), ::toupper);
 
@@ -311,7 +311,7 @@ namespace UndauntedPapyrus {
 				}
 			}
 		}
-		logger::info("hook_GetBountyObjectRefs %08X Success", BountyId);
+		logger::info("hook_GetBountyObjectRefs {:x} Success", BountyId);
 		return resultsarray;
 	}
 

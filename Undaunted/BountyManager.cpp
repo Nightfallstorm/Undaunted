@@ -34,13 +34,13 @@ namespace Undaunted {
 				RE::NiPoint3 distance = RE::PlayerCharacter::GetSingleton()->GetPosition() - bounty->xmarkerref->GetPosition();
 				Vector3 distvector = Vector3(distance.x, distance.y, distance.z);
 				int startdis = GetConfigValueInt("BountyStartDistance");
-				logger::info("Distance to marker: %f / %i", distvector.Magnitude(), startdis);
+				logger::info("Distance to marker: {} / {}", distvector.Magnitude(), startdis);
 				if (distvector.Magnitude() < startdis)
 				{
 					logger::info("Calling SpawnGroupAtTarget");
 					bounty->bountygrouplist = SpawnGroupAtTarget(_registry, bounty->bountygrouplist, bounty->xmarkerref, bounty->bountyworldcell.cell, bounty->bountyworldcell.world, 
 						GetConfigValueInt("BountyEnemyExteriorSpawnRadius"), GetConfigValueInt("BountyEnemyPlacementHeightDistance"));
-					logger::info("Enemy Count : %08X ", bounty->bountygrouplist.length);
+					logger::info("Enemy Count : {:x} ", bounty->bountygrouplist.length);
 					bounty->bountywave = 1;
 				}
 				else
@@ -61,7 +61,7 @@ namespace Undaunted {
 		int NonComplete = 0;
 		for (std::uint32_t i = 0; i < bounty->bountygrouplist.length; i++)
 		{
-			logger::info("Type, Member, complete: %s, %08X , %i", bounty->bountygrouplist.data[i].BountyType.c_str(), bounty->bountygrouplist.data[i].FormId, bounty->bountygrouplist.data[i].IsComplete());
+			logger::info("Type, Member, complete: {}, {:x} , {}", bounty->bountygrouplist.data[i].BountyType.c_str(), bounty->bountygrouplist.data[i].FormId, bounty->bountygrouplist.data[i].IsComplete());
 			if (bounty->bountygrouplist.data[i].IsComplete() != 1)
 			{
 				NonComplete++;
@@ -93,14 +93,14 @@ namespace Undaunted {
 	{
 		Bounty* bounty = &activebounties.data[BountyID];
 		srand(time(NULL));
-		logger::info("time %i", time(NULL));
+		logger::info("time {}", time(NULL));
 		if (previoustargets == NULL)
 		{
 			previoustargets = new FormRefList();
 		}
 		else
 		{
-			logger::info("locations in memory: %i", previoustargets->length);
+			logger::info("locations in memory: {}", previoustargets->length);
 		}
 		if (bounty->xmarkerref == NULL)
 		{
@@ -268,12 +268,12 @@ namespace Undaunted {
 				}
 			}
 		}
-		logger::info("target is set. Moving marker: WorldSpace: %s Cell: %08X ", bounty->bountyworldcell.world->editorID.c_str(), bounty->bountyworldcell.cell->formID);
+		logger::info("target is set. Moving marker: WorldSpace: {} Cell: {:x} ", bounty->bountyworldcell.world->editorID.c_str(), bounty->bountyworldcell.cell->formID);
 		MoveRefToWorldCell(bounty->xmarkerref, bounty->bountyworldcell.cell, bounty->bountyworldcell.world, target->GetPosition(), RE::NiPoint3(0, 0, 0));
 
 		bool foundbounty = false;
 		//We do our best but if someone has ran 50 bounties without traveling there's not much we can do.
-		logger::info("BountyName == %s", BountyName);
+		logger::info("BountyName == {}", BountyName);
 		for (int i = 0; i < 50 && !foundbounty; i++)
 		{
 			if (_stricmp(BountyName, "") == 0)
@@ -312,7 +312,7 @@ namespace Undaunted {
 		{
 			if (bounty->bountygrouplist.Tags.data[i].compare("REPEATABLE") == 0)
 			{
-				logger::info("Found Tag: %s", bounty->bountygrouplist.Tags.data[i].c_str());
+				logger::info("Found Tag: {}", bounty->bountygrouplist.Tags.data[i].c_str());
 				repeatable = true;
 			}
 		}
@@ -321,10 +321,10 @@ namespace Undaunted {
 			bountiesRan.AddItem(bountydata);
 		}
 
-		logger::info("Setting Bounty Message: %s", bounty->bountygrouplist.questText.c_str());
+		logger::info("Setting Bounty Message: {}", bounty->bountygrouplist.questText.c_str());
 		bounty->bountymessageref->fullName = bounty->bountygrouplist.questText;
 		auto player = RE::PlayerCharacter::GetSingleton();
-		logger::info("PlayerPos %f, %f, %f", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+		logger::info("PlayerPos {}, {}, {}", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 		return 0;
 	}
 
@@ -335,7 +335,7 @@ namespace Undaunted {
 		ClearBountyData(BountyID);
 		bounty->bountygrouplist = GetGroup(std::string(BountyName));
 		bounty->bountyworldcell = GetWorldCellFromRef(bounty->xmarkerref);
-		logger::info("GetWorldCellFromRef World: %s", bounty->bountyworldcell.world->editorID.c_str());
+		logger::info("GetWorldCellFromRef World: {}", bounty->bountyworldcell.world->editorID.c_str());
 		bounty->bountymessageref->fullName = bounty->bountygrouplist.questText;
 		//BountyUpdate();
 		return 0.0f;
