@@ -19,5 +19,6 @@ set(sources ${sources}
 	Undaunted/SpawnUtils.cpp
 	Undaunted/StartupManager.cpp
 	Undaunted/UnStringList.cpp
+	Undaunted/Vector.cpp
 	Undaunted/WorldCellList.cpp
 )

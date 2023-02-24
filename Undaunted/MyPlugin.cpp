@@ -67,7 +67,7 @@ namespace UndauntedPapyrus {
 	{
 		auto dataHandler = RE::TESDataHandler::GetSingleton();
 		
-		for (auto mod : RE::TESDataHandler::GetSingleton()->files) {
+		for (auto mod : dataHandler->files) {
 			logger::info("Listing Mods: %s , %i, %i", mod->GetFilename(), mod->GetCompileIndex(), mod->GetSmallFileCompileIndex());
 		}
 
@@ -113,7 +113,7 @@ namespace UndauntedPapyrus {
 	{
 		logger::info("hook_SetGroupMemberComplete");
 		//This actually works as it's using the object reference. The object should only be in one bounty.
-		for (int i = 0; i < BountyManager::getInstance()->activebounties.length; i++)
+		for (std::uint32_t i = 0; i < BountyManager::getInstance()->activebounties.length; i++)
 		{
 			BountyManager::getInstance()->activebounties.data[i].bountygrouplist.SetGroupMemberComplete(taget->formID);
 		}	
@@ -151,7 +151,7 @@ namespace UndauntedPapyrus {
 	}
 
 	// Process the Group header line. We return the groups position which we can use to add to later.
-	std::uint32_t AddGroup(RE::StaticFunctionTag* base, RE::BSFixedString questText, RE::BSFixedString modRequirement, std::uint32_t minLevel, std::uint32_t maxLevel, std::uint32_t playerLevel)
+	int AddGroup(RE::StaticFunctionTag* base, RE::BSFixedString questText, RE::BSFixedString modRequirement, std::uint32_t minLevel, std::uint32_t maxLevel, std::uint32_t playerLevel)
 	{
 		//Mod required is not loaded
 
@@ -262,9 +262,9 @@ namespace UndauntedPapyrus {
 	void SetScriptedDoorsComplete(RE::StaticFunctionTag* base)
 	{
 		logger::info("Starting hook_SetBountyComplete");
-		for (int i = 0; i < BountyManager::getInstance()->activebounties.length; i++)
+		for (std::uint32_t i = 0; i < BountyManager::getInstance()->activebounties.length; i++)
 		{
-			for (int j = 0; j < BountyManager::getInstance()->activebounties.data[i].bountygrouplist.length; j++)
+			for (std::uint32_t j = 0; j < BountyManager::getInstance()->activebounties.data[i].bountygrouplist.length; j++)
 			{
 				const char* type = BountyManager::getInstance()->activebounties.data[i].bountygrouplist.data[j].BountyType.c_str();
 				if (strcmp(type, "SCRIPTEDDOOR") == 0)
@@ -292,7 +292,7 @@ namespace UndauntedPapyrus {
 		if (strcmp("DELETE", type.c_str()) == 0)
 		{
 			logger::info("hook_GetBountyObjectRefs DELETE");
-			for (int i = 0; i < BountyManager::getInstance()->deleteList.length; i++)
+			for (std::uint32_t i = 0; i < BountyManager::getInstance()->deleteList.length; i++)
 			{
 				resultsarray.push_back(BountyManager::getInstance()->deleteList.data[i].objectRef);
 			}
@@ -300,7 +300,7 @@ namespace UndauntedPapyrus {
 			return resultsarray;
 		}
 
-		for (int i = 0; i < BountyManager::getInstance()->activebounties.data[BountyId].bountygrouplist.length; i++)
+		for (std::uint32_t i = 0; i < BountyManager::getInstance()->activebounties.data[BountyId].bountygrouplist.length; i++)
 		{
 			if (strcmp(BountyManager::getInstance()->activebounties.data[BountyId].bountygrouplist.data[i].BountyType.c_str(), type.c_str()) == 0 ||
 				strcmp(bountyType.c_str(),"ALL") == 0)
@@ -337,7 +337,7 @@ namespace UndauntedPapyrus {
 		logger::info("hook_SpawnRift");
 		Undaunted::RefList results = BountyManager::getInstance()->StartRift(BountyId, Startpoint);
 		std::vector<RE::TESObjectREFR*> resultsarray = std::vector<RE::TESObjectREFR*>();
-		for (int i = 0; i < results.length; i++)
+		for (std::uint32_t i = 0; i < results.length; i++)
 		{
 			resultsarray.push_back(results.data[i].objectRef);
 		}
@@ -357,7 +357,7 @@ namespace UndauntedPapyrus {
 		logger::info("hook_GetRiftReferences");
 		Undaunted::RefList results = Undaunted::GetCurrentRiftRefs();
 		std::vector<RE::TESObjectREFR*> resultsarray = std::vector<RE::TESObjectREFR*>();
-		for (int i = 0; i < results.length; i++)
+		for (std::uint32_t i = 0; i < results.length; i++)
 		{
 			resultsarray.push_back(results.data[i].objectRef);
 		}
@@ -386,36 +386,30 @@ namespace UndauntedPapyrus {
 		WorldCell wcell = WorldCell();
 		wcell.cell = player->parentCell;
 		wcell.world = player->GetWorldspace();
-		int numberofRefs = papyrusCell::GetNumRefs(wcell.cell, 0);
-		for (int i = 0; i < numberofRefs; i++)
-		{
-			RE::TESObjectREFR* ref = papyrusCell::GetNthRef(wcell.cell, i, 0);
-			if (ref != NULL)
-			{
-				if (ref->formID != NULL)
-				{
-					if (ref->GetBaseObject()->formID == FormId)
-					{
-						Undaunted::Ref formref = Undaunted::Ref();
-						formref.objectRef = ref;
-						RiftBattleMarkers.AddItem(formref);
-					}
+		wcell.cell->ForEachReference([&](RE::TESObjectREFR& ref) {
+			if (ref.formID != NULL) {
+				if (ref.GetBaseObject()->formID == FormId) {
+					Undaunted::Ref formref = Undaunted::Ref();
+					formref.objectRef = &ref;
+					RiftBattleMarkers.AddItem(formref);
 				}
 			}
-		}
+			return RE::BSContainer::ForEachResult::kContinue;
+		});
+		
 		logger::info("Spawning groups at each Rift Battle Marker");
 		int spawnradius = Undaunted::GetConfigValueInt("BountyEnemyInteriorSpawnRadius");
 
 		for (int i = 0; i < 2; i++)
 		{
 			GroupList riftlist = Undaunted::GetRandomTaggedGroup("RIFT");
-			for (int j = 0; j < riftlist.length; j++)
+			for (std::uint32_t j = 0; j < riftlist.length; j++)
 			{
 				Undaunted::SpawnMonsterInCell(BountyManager::getInstance()->_registry, riftlist.data[j].FormId, wcell);
 			}
 		}
 		
-		for (int i = 0; i < RiftBattleMarkers.length; i++)
+		for (std::uint32_t i = 0; i < RiftBattleMarkers.length; i++)
 		{
 			GroupList riftlist = Undaunted::GetRandomTaggedGroup("RIFT");
 			Undaunted::SpawnGroupAtTarget(BountyManager::getInstance()->_registry, riftlist, RiftBattleMarkers.data[i].objectRef, wcell.cell, wcell.world, spawnradius, 1000);

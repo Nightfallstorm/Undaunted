@@ -12,7 +12,7 @@ namespace Undaunted
 	//Regions
 	void AddBadRegionToConfig(std::uint32_t region)
 	{
-		logger::info("Adding %08X to Bad Region List", region);
+		logger::info("Adding {:x} to Bad Region List", region);
 		BadRegionList.AddItem(region);
 	}
 
@@ -23,7 +23,7 @@ namespace Undaunted
 	//Groups
 	int AddGroup(std::string questText, std::uint32_t minlevel, std::uint32_t maxlevel, UnStringlist tags)
 	{
-		logger::info("Adding bounty to GroupLibary: %s", questText.c_str());
+		logger::info("Adding bounty to GroupLibary: {}", questText.c_str());
 		GroupList newGroup = GroupList();
 		newGroup.questText = questText;
 		newGroup.minLevel = minlevel;
@@ -74,13 +74,13 @@ namespace Undaunted
 		while (true)
 		{
 			int groupid = GroupLibaryIndex++;
-			logger::info("Random Group: %i", groupid);
+			logger::info("Random Group: {}", groupid);
 			if (groupid >= GroupLibary.length)
 			{
 				ShuffleGroupLibary();
 				GroupLibaryIndex = 0;
 			}
-			logger::info("Random Member Count: %i", GroupLibary.data[groupid].length);
+			logger::info("Random Member Count: {}", GroupLibary.data[groupid].length);
 			//Player is too low level for this bounty
 			if (playerLevel + GetConfigValueInt("BountyLevelCache") < GroupLibary.data[groupid].minLevel && GroupLibary.data[groupid].minLevel != 0)
 			{
@@ -108,8 +108,8 @@ namespace Undaunted
 				GroupLibaryIndex = 0;
 				startingGroupLibaryIndex = 0;
 			}
-			logger::info("Random Group: %i", groupid);
-			logger::info("Random Member Count: %i", GroupLibary.data[groupid].length);
+			logger::info("Random Group: {}", groupid);
+			logger::info("Random Member Count: {}", GroupLibary.data[groupid].length);
 			//Player is too low level for this bounty
 			if (playerLevel + GetConfigValueInt("BountyLevelCache") < GroupLibary.data[groupid].minLevel && GroupLibary.data[groupid].minLevel != 0)
 			{
@@ -123,10 +123,10 @@ namespace Undaunted
 			
 			for (int i = 0; i < GroupLibary.data[groupid].Tags.length; i++)
 			{
-				logger::info("Comparing Tag: %s = %s", GroupLibary.data[groupid].Tags.data[i].c_str(), tag.c_str());
+				logger::info("Comparing Tag: {} = {}", GroupLibary.data[groupid].Tags.data[i].c_str(), tag.c_str());
 				if (GroupLibary.data[groupid].Tags.data[i].compare(tag) == 0)
 				{
-					logger::info("Found Tag: %s", GroupLibary.data[groupid].Tags.data[i].c_str());
+					logger::info("Found Tag: {}", GroupLibary.data[groupid].Tags.data[i].c_str());
 					if (GroupLibaryIndex > GroupLibary.length)
 					{
 						ShuffleGroupLibary();

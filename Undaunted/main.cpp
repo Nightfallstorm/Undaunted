@@ -11,7 +11,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_message)
 		//We're loading the game. Clear up any bounty data.
 		logger::info("kMessage_PreLoadGame rechieved, clearing bounty data.");
 		if (Undaunted::BountyManager::getInstance()->activebounties.length > 0) {
-			for (int i = 0; i < Undaunted::BountyManager::getInstance()->activebounties.length; i++) {
+			for (std::uint32_t i = 0; i < Undaunted::BountyManager::getInstance()->activebounties.length; i++) {
 				Undaunted::BountyManager::getInstance()->ClearBountyData(i);
 			}
 		}
@@ -83,7 +83,7 @@ void InitializeLog()
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse) {  // Called by SKSE to load this plugin
 		InitializeLog();
-
+		SKSE::Init(a_skse);
 		logger::info("Undaunted");
 		logger::info("Loading Undaunted..");
 		
@@ -95,6 +95,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		logger::info("RegisterListener");
 
 		auto papyrus = SKSE::GetPapyrusInterface();
+		logger::info("Grabbed Papyrus Interface");
 		papyrus->Register(UndauntedPapyrus::RegisterFuncs);
 		logger::info("Register Succeeded");
 

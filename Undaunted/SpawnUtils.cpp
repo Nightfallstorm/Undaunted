@@ -4,78 +4,78 @@
 
 namespace Undaunted
 {
-	TESObjectREFR* SpawnMonsterAtRef(RE::BSScript::Internal::VirtualMachine* registry,std::uint32_t Type, TESObjectREFR* ref, TESObjectCELL* cell, TESWorldSpace* worldspace)
+	RE::TESObjectREFR* SpawnMonsterAtRef(RE::BSScript::Internal::VirtualMachine* registry, RE::FormID ID, RE::TESObjectREFR* ref, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace)
 	{
-		NiPoint3 startingpoint = ref->pos;
-		TESForm* spawnForm = LookupFormByID(Type);
+		RE::NiPoint3 startingpoint = ref->GetPosition();
+		RE::TESForm* spawnForm = RE::TESForm::LookupByID(ID);
 		if (spawnForm == NULL)
 		{
-			logger::info("Failed to Spawn. Form Invalid: %08X", Type);
+			logger::info("Failed to Spawn. Form Invalid: {:x}", ID);
 			return NULL;
 		}
 		int spawnradius = GetConfigValueInt("BountyEnemyInteriorSpawnRadius");
-		NiPoint3 offset = NiPoint3(rand() & spawnradius, rand() & spawnradius, 0);
-		MoveRefToWorldCell(ref, cell, worldspace, ref->pos + offset, NiPoint3(0, 0, 0));
-		TESObjectREFR* spawned = PlaceAtMe(registry, 1, ref, spawnForm, 1, true, false);
-		MoveRefToWorldCell(ref, cell, worldspace, startingpoint, NiPoint3(0, 0, 0));
+		RE::NiPoint3 offset = RE::NiPoint3(rand() & spawnradius, rand() & spawnradius, 0);
+		MoveRefToWorldCell(ref, cell, worldspace, ref->GetPosition() + offset, RE::NiPoint3(0, 0, 0));
+		RE::TESObjectREFR* spawned = PlaceAtMe(registry, 1, ref, spawnForm, 1, true, false);
+		MoveRefToWorldCell(ref, cell, worldspace, startingpoint, RE::NiPoint3(0, 0, 0));
 		return spawned;
 	}
 
-	TESObjectREFR* SpawnRefAtPosition(std::uint32_t Type, WorldCell wcell, NiPoint3 Position)
+	RE::TESObjectREFR* SpawnRefAtPosition(RE::FormID Type, WorldCell wcell, RE::NiPoint3 Position)
 	{
-		TESForm* spawnForm = LookupFormByID(Type);
+		RE::TESForm* spawnForm = RE::TESForm::LookupByID(Type);
 		if (spawnForm == NULL)
 		{
-			logger::info("Failed to Spawn. Form Invalid: %08X", Type);
+			logger::info("Failed to Spawn. Form Invalid: {:x}", Type);
 			return NULL;
 		}
-		TESObjectREFR* spawned = PlaceAtMe(BountyManager::getInstance()->_registry, 1, GetPlayer(), spawnForm, 1, true, false);
+		RE::TESObjectREFR* spawned = PlaceAtMe(BountyManager::getInstance()->_registry, 1, RE::PlayerCharacter::GetSingleton(), spawnForm, 1, true, false);
 		//MoveRefToWorldCell(spawned, wcell.cell, wcell.world, Position, NiPoint3(0, 0, 0));
 		return spawned;
 	}
 
-	TESObjectREFR* SpawnMonsterInCell(RE::BSScript::Internal::VirtualMachine* registry, std::uint32_t Type, WorldCell wcell)
+	RE::TESObjectREFR* SpawnMonsterInCell(RE::BSScript::Internal::VirtualMachine* registry, RE::FormID ID, WorldCell wcell)
 	{
-		TESForm* spawnForm = LookupFormByID(Type);
+		RE::TESForm* spawnForm = RE::TESForm::LookupByID(ID);
 		if (spawnForm == NULL)
 		{
-			logger::info("Failed to Spawn. Form Invalid: %08X", Type);
+			logger::info("Failed to Spawn. Form Invalid: {:x}", ID);
 			return NULL;
 		}
-		TESObjectREFR* target = GetRandomObjectInCell(wcell);
-		TESObjectREFR* spawned = PlaceAtMe(registry, 1, target, spawnForm, 1, false, false);
+		RE::TESObjectREFR* target = GetRandomObjectInCell(wcell);
+		RE::TESObjectREFR* spawned = PlaceAtMe(registry, 1, target, spawnForm, 1, false, false);
 		return spawned;
 	}
 
 	GroupList SpawnGroupInCell(RE::BSScript::Internal::VirtualMachine* registry, GroupList Types, WorldCell wcell)
 	{
-		TESObjectREFR* target = GetRandomObjectInCell(wcell);
+		RE::TESObjectREFR* target = GetRandomObjectInCell(wcell);
 		return SpawnGroupAtTarget(registry, Types, target, wcell.cell, wcell.world,0,1000);
 	}
 
-	GroupList SpawnGroupAtTarget(RE::BSScript::Internal::VirtualMachine* registry, GroupList Types, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace, int spawnradius, int HeightDistance)
+	GroupList SpawnGroupAtTarget(RE::BSScript::Internal::VirtualMachine* registry, GroupList Types, RE::TESObjectREFR* Target, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace, int spawnradius, int HeightDistance)
 	{
-		TESObjectREFR* spawned = NULL;
+		RE::TESObjectREFR* spawned = NULL;
 		srand(time(NULL));
-		NiPoint3 startingpoint = Target->pos;
+		RE::NiPoint3 startingpoint = Target->GetPosition();
 
 		for (std::uint32_t i = 0; i < Types.length; i++)
 		{
 			logger::info("Calling LookupFormByID");
-			TESForm* spawnForm = LookupFormByID(Types.data[i].FormId);
+			RE::TESForm* spawnForm = RE::TESForm::LookupByID(Types.data[i].FormId);
 			if (spawnForm == NULL)
 			{
 				logger::info("Failed to Spawn. Form Invalid");
 				return Types;
 			}
 			//If a model file path is set then change the form model.
-			if (!strcmp(Types.data[i].ModelFilepath.Get(), "") == 0)
+			if (!strcmp(Types.data[i].ModelFilepath.c_str(), "") == 0)
 			{
-				TESModel* pWorldModel = DYNAMIC_CAST(spawnForm, TESForm, TESModel);
+				RE::TESModel* pWorldModel = skyrim_cast<RE::TESModel*>(spawnForm);
 				if (pWorldModel)
 				{
-					logger::info("GetModelName: %s", pWorldModel->GetModelName());
-					pWorldModel->SetModelName(Types.data[i].ModelFilepath.Get());
+					logger::info("GetModelName: %s", pWorldModel->GetModel());
+					pWorldModel->SetModel(Types.data[i].ModelFilepath.c_str());
 				}
 			}
 			if (strcmp(Types.data[i].BountyType.c_str(), "ENEMY") == 0 || 
@@ -88,17 +88,17 @@ namespace Undaunted
 				{
 					logger::info("placedsuccessfully");
 					//Random Offset
-					NiPoint3 offset = NiPoint3(rand() & spawnradius, rand() & spawnradius, 0);
+					RE::NiPoint3 offset = RE::NiPoint3(rand() & spawnradius, rand() & spawnradius, 0);
 
-					MoveRefToWorldCell(Target, cell, worldspace, startingpoint + offset, NiPoint3(0, 0, rand() % 360));
+					MoveRefToWorldCell(Target, cell, worldspace, startingpoint + offset, RE::NiPoint3(0, 0, rand() % 360));
 					spawned = PlaceAtMe(registry, 1, Target, spawnForm, 1, true, false);
 					
-						int heightdist = startingpoint.z - spawned->pos.z;
+						int heightdist = startingpoint.z - spawned->GetPositionZ();
 						//Delete
 						if ((heightdist > HeightDistance || heightdist < -HeightDistance) && giveupcount > 0)
 						{
 							logger::info("Spawn Height is too different. Deleting.");
-							MoveRefToWorldCell(spawned, cell, worldspace, NiPoint3(0, 0, 10000), NiPoint3(0, 0, 0));
+							MoveRefToWorldCell(spawned, cell, worldspace, RE::NiPoint3(0, 0, 10000), RE::NiPoint3(0, 0, 0));
 							BountyManager::getInstance()->AddToDeleteList(spawned);
 							giveupcount--;
 						}
@@ -119,14 +119,14 @@ namespace Undaunted
 				if (spawned != NULL)
 				{
 					//Actors jump to the navmesh. Objects don't. This tries to used the jump to find the ground.
-					TESObjectREFR* decoration = PlaceAtMe(registry, 1, spawned, spawnForm, 1, true, false);
+					RE::TESObjectREFR* decoration = PlaceAtMe(registry, 1, spawned, spawnForm, 1, true, false);
 					Types.data[i].objectRef = decoration;
 					Types.data[i].isComplete = false;
 					Types.data[i].PreBounty();
 				}
 				else
 				{
-					TESObjectREFR* decoration = PlaceAtMe(registry, 1, Target, spawnForm, 1, true, false);
+					RE::TESObjectREFR* decoration = PlaceAtMe(registry, 1, Target, spawnForm, 1, true, false);
 					Types.data[i].objectRef = decoration;
 					Types.data[i].isComplete = false;
 					Types.data[i].PreBounty();
@@ -135,8 +135,8 @@ namespace Undaunted
 			else if (strcmp(Types.data[i].BountyType.c_str(), "PHYSICSSCRIPTED") == 0)
 			{
 				//We don't want these falling through the floor, so we put them in the air.
-				TESObjectREFR* PhysicsScripted = PlaceAtMe(registry, 1, spawned, spawnForm, 1, true, false);
-				NiPoint3 offset = NiPoint3(0, 0, -1500);
+				RE::TESObjectREFR* PhysicsScripted = PlaceAtMe(registry, 1, spawned, spawnForm, 1, true, false);
+				RE::NiPoint3 offset = RE::NiPoint3(0, 0, -1500);
 				//MoveRefToWorldCell(PhysicsScripted, cell, worldspace, PhysicsScripted->pos + offset, NiPoint3(0, 0, 0));
 				Types.data[i].objectRef = PhysicsScripted;
 				Types.data[i].PreBounty();
@@ -145,41 +145,41 @@ namespace Undaunted
 		return Types;
 	}
 
-	VMResultArray<float> RiftRotations;
+	std::vector<float> RiftRotations;
 	RefList riftobjectrefs = RefList();
 
-	RefList SpawnRift(RE::BSScript::Internal::VirtualMachine* registry, TESObjectREFR* Target, TESObjectCELL* cell, TESWorldSpace* worldspace)
+	RefList SpawnRift(RE::BSScript::Internal::VirtualMachine* registry, RE::TESObjectREFR* Target, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace)
 	{
 		//Debug
 		srand(time(NULL));
-		NiPoint3 startingpoint = Target->pos;// +NiPoint3(rand() % 1000, rand() % 1000, rand() % 1000);
+		RE::NiPoint3 startingpoint = Target->GetPosition();  // +NiPoint3(rand() % 1000, rand() % 1000, rand() % 1000);
 
 
 		riftobjectrefs = RefList();
 		FormRefList formlist = GetRandomRift();
-		RiftRotations = VMResultArray<float>();
+		RiftRotations = std::vector<float>();
 		for (int i = 0; i < formlist.length; i++)
 		{
-			TESForm* spawnForm = LookupFormByID(formlist.data[i].formId);
+			RE::TESForm* spawnForm = RE::TESForm::LookupByID(formlist.data[i].formId);
 			if (spawnForm == NULL)
 			{
 				logger::info("Spawnform is null");
 				continue;
 			}
-			NiPoint3 position = startingpoint + formlist.data[i].pos;
-			NiPoint3 rotation = formlist.data[i].rot;
+			RE::NiPoint3 position = startingpoint + formlist.data[i].pos;
+			RE::NiPoint3 rotation = formlist.data[i].rot;
 			rotation.x = rotation.x* (180.0 / 3.141592653589793238463);
 			rotation.y = rotation.y* (180.0 / 3.141592653589793238463);
 			rotation.z = rotation.z* (180.0 / 3.141592653589793238463);
 
-			TESObjectREFR* spawned = PlaceAtMe(registry, 1, Target, spawnForm, 1, true, false);
-			spawned->unk90 = formlist.data[i].scale;
-			spawned->pos = position;
-			spawned->rot = rotation;
-//			MoveRefToWorldCell(spawned, cell, worldspace, position, rotation);
+			RE::TESObjectREFR* spawned = PlaceAtMe(registry, 1, Target, spawnForm, 1, true, false);
+			spawned->GetReferenceRuntimeData().refScale = formlist.data[i].scale;
+			spawned->GetPosition() = position;
+			spawned->GetAngle() = rotation;
+			//			MoveRefToWorldCell(spawned, cell, worldspace, position, rotation);
 
 
-			logger::info("Spawn details: %f, %f, %f, %f, %f, %f", position.x, position.y, position.z, rotation.x, rotation.y, rotation.z);
+			logger::info("Spawn details: {}, {}, {}, {}, {}, {}", position.x, position.y, position.z, rotation.x, rotation.y, rotation.z);
 			Ref newref = Ref();
 			newref.objectRef = spawned;
 			riftobjectrefs.AddItem(newref);
@@ -194,7 +194,7 @@ namespace Undaunted
 		return riftobjectrefs;
 	}
 
-	VMResultArray<float> GetRiftRotations()
+	std::vector<float> GetRiftRotations()
 	{
 		return RiftRotations;
 	}

@@ -18,7 +18,7 @@ namespace Undaunted
 	class BountyList {
 	public:
 		Bounty* data;
-		int length;
+		std::uint32_t length;
 		BountyList* AddItem(Bounty item);
 	};
 #endif

@@ -1,17 +1,16 @@
-#include <skse64\GameForms.h>
 namespace Undaunted
 {
 #ifndef RefListdef
 #define RefListdef
 	class Ref {
 	public:
-		TESObjectREFR* objectRef;
+		RE::TESObjectREFR* objectRef;
 	};
 
 	class RefList {
 	public:
 		Ref* data;
-		int length;
+		std::uint32_t length;
 		RefList* AddItem(Ref item);
 		RefList* SwapItem(int first, int second);
 	};

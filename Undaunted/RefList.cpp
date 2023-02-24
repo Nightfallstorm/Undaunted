@@ -7,7 +7,7 @@ namespace Undaunted
 		RefList newlist = RefList();
 		newlist.length = currentlist->length + 1;
 		newlist.data = new Ref[newlist.length];
-		for (int i = 0; i < currentlist->length; i++)
+		for (std::uint32_t i = 0; i < currentlist->length; i++)
 		{
 			newlist.data[i] = currentlist->data[i];
 		}

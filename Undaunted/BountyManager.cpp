@@ -1,4 +1,5 @@
 #include "BountyManager.h"
+#include "Vector.h"
 
 namespace Undaunted {
 	BountyManager* BountyManager::instance = 0;
@@ -13,7 +14,7 @@ namespace Undaunted {
 	}
 
 
-	bool BountyManager::BountyUpdate(int BountyID)
+	bool BountyManager::BountyUpdate(std::uint32_t BountyID)
 	{
 		//The bounty list has changed. Probably from a reload.
 		if (BountyID > activebounties.length)
@@ -26,11 +27,11 @@ namespace Undaunted {
 		if (bounty->bountywave == 0 && bounty->bountyworldcell.world != NULL)
 		{
 			//Is the player in the right worldspace?
-			if (_stricmp(GetCurrentWorldspaceName().Get(), bounty->bountyworldcell.world->editorId.Get()) == 0)
+			if (_stricmp(GetCurrentWorldspaceName().c_str(), bounty->bountyworldcell.world->editorID.c_str()) == 0)
 			{
 				logger::info("Player in Worldspace");
 				//Check the distance to the XMarker
-				RE::NiPoint3 distance = GetPlayer()->pos - bounty->xmarkerref->GetPosition();
+				RE::NiPoint3 distance = RE::PlayerCharacter::GetSingleton()->GetPosition() - bounty->xmarkerref->GetPosition();
 				Vector3 distvector = Vector3(distance.x, distance.y, distance.z);
 				int startdis = GetConfigValueInt("BountyStartDistance");
 				logger::info("Distance to marker: %f / %i", distvector.Magnitude(), startdis);
@@ -66,7 +67,7 @@ namespace Undaunted {
 				NonComplete++;
 				if (bounty->bountygrouplist.data[i].objectRef != NULL)
 				{
-					MoveRefToWorldCell(bounty->xmarkerref, bounty->bountyworldcell.cell, bounty->bountyworldcell.world, bounty->bountygrouplist.data[i].objectRef->pos, NiPoint3(0, 0, 0));
+					MoveRefToWorldCell(bounty->xmarkerref, bounty->bountyworldcell.cell, bounty->bountyworldcell.world, bounty->bountygrouplist.data[i].objectRef->GetPosition(), RE::NiPoint3(0, 0, 0));
 				}
 			}
 		}
@@ -88,7 +89,7 @@ namespace Undaunted {
 	FormRefList* previoustargets;
 	int cardinality = -1;
 
-	float BountyManager::StartBounty(int BountyID,bool nearby, const char* BountyName,TESObjectREFR* ref,BSFixedString WorldSpaceName, std::string bountyTag)
+	float BountyManager::StartBounty(std::uint32_t BountyID, bool nearby, const char* BountyName, RE::TESObjectREFR* ref, RE::BSFixedString WorldSpaceName, std::string bountyTag)
 	{
 		Bounty* bounty = &activebounties.data[BountyID];
 		srand(time(NULL));
@@ -126,17 +127,17 @@ namespace Undaunted {
 		//Cleanup previous bounties
 		ClearBountyData(BountyID);
 
-		TESObjectREFR* target = NULL;
+		RE::TESObjectREFR* target = NULL;
 		if (!nearby )
 		{
 			if (ref == NULL)
 			{
 				logger::info("ref == NULL");
-				bounty->bountyworldcell = GetNamedWorldCell(GetCurrentWorldspaceName().Get());
+				bounty->bountyworldcell = GetNamedWorldCell(GetCurrentWorldspaceName().c_str());
 			}
 			else
 			{
-				bounty->bountyworldcell = GetNamedWorldCell(WorldSpaceName.Get());
+				bounty->bountyworldcell = GetNamedWorldCell(WorldSpaceName.c_str());
 			}
 			target = GetRandomObjectInCell(bounty->bountyworldcell);
 		}
@@ -152,40 +153,40 @@ namespace Undaunted {
 			logger::info("Searching for next location");
 			while (!foundtarget)
 			{
-				NiPoint3 distance;
+				RE::NiPoint3 distance;
 				if (ref == NULL)
 				{
 					//logger::info("ref == NULL");
-					bounty->bountyworldcell = GetNamedWorldCell(GetCurrentWorldspaceName().Get());
+					bounty->bountyworldcell = GetNamedWorldCell(GetCurrentWorldspaceName().c_str());
 					target = GetRandomObjectInCell(bounty->bountyworldcell);
-					distance = GetPlayer()->pos - target->pos;
+					distance = RE::PlayerCharacter::GetSingleton()->GetPosition() - target->GetPosition();
 				}
 				else
 				{
 					//logger::info("ref != NULL ");
 					//logger::info("WorldSpaceName: %s", WorldSpaceName.Get());
-					bounty->bountyworldcell = GetNamedWorldCell(WorldSpaceName.Get());
+					bounty->bountyworldcell = GetNamedWorldCell(WorldSpaceName.c_str());
 					target = GetRandomObjectInCell(bounty->bountyworldcell);
-					distance = ref->pos - target->pos;
+					distance = ref->GetPosition() - target->GetPosition();
 				}
 				Vector3 distvector = Vector3(distance.x, distance.y, distance.z);
 				//logger::info("Distance to Bounty: %f", distvector.Magnitude());
 				//logger::info("Distance %f, Height: %f", distvector.Magnitude(), target->pos.z);
 				if (distvector.Magnitude() > BountyMinSpawnDistance && 
 					distvector.Magnitude() < BountyMaxSpawnDistance && 
-					target->pos.z < GetPlayer()->pos.z + BountyMaxHeight &&
-					target->pos.z > GetPlayer()->pos.z - BountyMinHeight)
+					target->GetPositionZ() < RE::PlayerCharacter::GetSingleton()->GetPositionZ() + BountyMaxHeight &&
+					target->GetPositionZ() > RE::PlayerCharacter::GetSingleton()->GetPositionZ() - BountyMinHeight)
 				{
 					//Check if we've used this location before in memory.
 					bool usedalready = false;
 					for (int i = 0; i < previoustargets->length; i++)
 					{
-						if (target->pos.x == previoustargets->data[i].pos.x &&
-							target->pos.y == previoustargets->data[i].pos.y &&
-							target->pos.z == previoustargets->data[i].pos.z &&
-							target->rot.x == previoustargets->data[i].rot.x &&
-							target->rot.y == previoustargets->data[i].rot.y &&
-							target->rot.z == previoustargets->data[i].rot.z)
+						if (target->GetPositionX() == previoustargets->data[i].pos.x &&
+							target->GetPositionY() == previoustargets->data[i].pos.y &&
+							target->GetPositionZ() == previoustargets->data[i].pos.z &&
+							target->GetAngleX() == previoustargets->data[i].rot.x &&
+							target->GetAngleY() == previoustargets->data[i].rot.y &&
+							target->GetAngleZ() == previoustargets->data[i].rot.z)
 						{
 							usedalready = true;
 							break;
@@ -198,24 +199,24 @@ namespace Undaunted {
 						switch (cardinality)
 						{
 						case 0: //North
-							if (target->pos.y < previoustargets->data[previoustargets->length - 1].pos.y)
+							if (target->GetPositionY() < previoustargets->data[previoustargets->length - 1].pos.y)
 							{
 								usedalready = true;
 							}
 							break;
 						case 1: //East
-							if (target->pos.x < previoustargets->data[previoustargets->length - 1].pos.x)
+							if (target->GetPositionX() < previoustargets->data[previoustargets->length - 1].pos.x)
 							{
 								usedalready = true;
 							}
 						case 2: //South
-							if (target->pos.y > previoustargets->data[previoustargets->length - 1].pos.y)
+							if (target->GetPositionY() > previoustargets->data[previoustargets->length - 1].pos.y)
 							{
 								usedalready = true;
 							}
 							break;
 						case 3: //West
-							if (target->pos.x > previoustargets->data[previoustargets->length - 1].pos.x)
+							if (target->GetPositionX() > previoustargets->data[previoustargets->length - 1].pos.x)
 							{
 								usedalready = true;
 							}
@@ -231,8 +232,8 @@ namespace Undaunted {
 						foundtarget = true;
 						//We capture the form we're using, so we can prevent reuse.
 						FormRef* targetForm = new FormRef();
-						targetForm->pos = target->pos;
-						targetForm->rot = target->rot;
+						targetForm->pos = target->GetPosition();
+						targetForm->rot = target->GetAngle();
 						previoustargets->AddItem(*targetForm);
 					}
 				}
@@ -246,13 +247,13 @@ namespace Undaunted {
 				if (loopcounts > BountySearchAttempts * 2)
 				{
 					logger::info("Can't find anything. Give up and use any cell");
-					if (strcmp(WorldSpaceName.Get(), "") != 0)
+					if (strcmp(WorldSpaceName.c_str(), "") != 0)
 					{
-						bounty->bountyworldcell = GetNamedWorldCell(WorldSpaceName.Get());
+						bounty->bountyworldcell = GetNamedWorldCell(WorldSpaceName.c_str());
 					}
 					else
 					{
-						bounty->bountyworldcell = GetNamedWorldCell(GetCurrentWorldspaceName().Get());
+						bounty->bountyworldcell = GetNamedWorldCell(GetCurrentWorldspaceName().c_str());
 					}
 					target = GetRandomObjectInCell(bounty->bountyworldcell);
 					foundtarget = true;
@@ -261,14 +262,14 @@ namespace Undaunted {
 
 					//We capture the form we're using, so we can prevent reuse.
 					FormRef* targetForm = new FormRef();
-					targetForm->pos = target->pos;
-					targetForm->rot = target->rot;
+					targetForm->pos = target->GetPosition();
+					targetForm->rot = target->GetAngle();
 					previoustargets->AddItem(*targetForm);
 				}
 			}
 		}
-		logger::info("target is set. Moving marker: WorldSpace: %s Cell: %08X ", bounty->bountyworldcell.world->editorId.Get(), bounty->bountyworldcell.cell->formID);
-		MoveRefToWorldCell(bounty->xmarkerref, bounty->bountyworldcell.cell, bounty->bountyworldcell.world, target->pos, NiPoint3(0, 0, 0));
+		logger::info("target is set. Moving marker: WorldSpace: %s Cell: %08X ", bounty->bountyworldcell.world->editorID.c_str(), bounty->bountyworldcell.cell->formID);
+		MoveRefToWorldCell(bounty->xmarkerref, bounty->bountyworldcell.cell, bounty->bountyworldcell.world, target->GetPosition(), RE::NiPoint3(0, 0, 0));
 
 		bool foundbounty = false;
 		//We do our best but if someone has ran 50 bounties without traveling there's not much we can do.
@@ -321,28 +322,29 @@ namespace Undaunted {
 		}
 
 		logger::info("Setting Bounty Message: %s", bounty->bountygrouplist.questText.c_str());
-		bounty->bountymessageref->fullName.name = bounty->bountygrouplist.questText.c_str();
-		logger::info("PlayerPos %f, %f, %f", GetPlayer()->pos.x, GetPlayer()->pos.y, GetPlayer()->pos.z);
+		bounty->bountymessageref->fullName = bounty->bountygrouplist.questText;
+		auto player = RE::PlayerCharacter::GetSingleton();
+		logger::info("PlayerPos %f, %f, %f", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 		return 0;
 	}
 
-	float BountyManager::restartBounty(int BountyID,const char* BountyName)
+	float BountyManager::restartBounty(std::uint32_t BountyID, const char* BountyName)
 	{
 		Bounty* bounty = &activebounties.data[BountyID];
 		srand(time(NULL));
 		ClearBountyData(BountyID);
-		bool foundbounty = false;
 		bounty->bountygrouplist = GetGroup(std::string(BountyName));
 		bounty->bountyworldcell = GetWorldCellFromRef(bounty->xmarkerref);
-		logger::info("GetWorldCellFromRef World: %s", bounty->bountyworldcell.world->editorId.Get());
-		bounty->bountymessageref->fullName.name = bounty->bountygrouplist.questText.c_str();
+		logger::info("GetWorldCellFromRef World: %s", bounty->bountyworldcell.world->editorID.c_str());
+		bounty->bountymessageref->fullName = bounty->bountygrouplist.questText;
 		//BountyUpdate();
 		return 0.0f;
 	}
 
-	void BountyManager::ClearBountyData(int BountyID) {
+	void BountyManager::ClearBountyData(std::uint32_t BountyID)
+	{
 		Bounty bounty = activebounties.data[BountyID];
-		for (int i = 0; i < bounty.bountygrouplist.length; i++)
+		for (std::uint32_t i = 0; i < bounty.bountygrouplist.length; i++)
 		{
 			//Clear all completed flags
 			bounty.bountygrouplist.data[i].isComplete = false;
@@ -369,7 +371,7 @@ namespace Undaunted {
 		bountiesRan = UnDictionary();
 	}
 
-	void BountyManager::AddToDeleteList(TESObjectREFR* ref)
+	void BountyManager::AddToDeleteList(RE::TESObjectREFR* ref)
 	{
 		logger::info("AddToDeleteList");
 		Ref newref = Ref();
@@ -383,10 +385,10 @@ namespace Undaunted {
 		deleteList = RefList();
 	}
 
-	RefList BountyManager::StartRift(int BountyID, TESObjectREFR* Startpoint)
+	RefList BountyManager::StartRift(std::uint32_t BountyID, RE::TESObjectREFR* Startpoint)
 	{
 		//Bounty bounty = activebounties.data[BountyID];
-		RefList refs = SpawnRift(_registry, Startpoint, Startpoint->parentCell, GetPlayer()->currentWorldSpace);
+		RefList refs = SpawnRift(_registry, Startpoint, Startpoint->parentCell, RE::PlayerCharacter::GetSingleton()->GetWorldspace());
 		return refs;
 	}
 

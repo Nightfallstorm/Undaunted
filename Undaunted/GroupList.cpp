@@ -1,7 +1,7 @@
 #include "IntList.h"
 #include "GroupList.h"
-#include <Undaunted\LocationUtils.h>
-#include <Undaunted\BountyManager.h>
+#include "LocationUtils.h"
+#include "BountyManager.h"
 
 namespace Undaunted
 {
@@ -11,7 +11,7 @@ namespace Undaunted
 		GroupList newlist = GroupList();
 		newlist.length = currentlist->length + 1;
 		newlist.data = new GroupMember[newlist.length];
-		for (int i = 0; i < currentlist->length; i++)
+		for (std::uint32_t i = 0; i < currentlist->length; i++)
 		{
 			newlist.data[i] = currentlist->data[i];
 		}
@@ -33,7 +33,7 @@ namespace Undaunted
 
 	void GroupList::SetGroupMemberComplete(std::uint32_t id)
 	{
-		for (int i = 0; i < this->length; i++)
+		for (std::uint32_t i = 0; i < this->length; i++)
 		{
 			if (this->data[i].objectRef != NULL)
 			{
@@ -69,7 +69,7 @@ namespace Undaunted
 		const char* type = this->BountyType.c_str();
 		if (strcmp(type, "EndEffect") == 0)
 		{
-			TESForm* spawnForm = LookupFormByID(this->FormId);
+			RE::TESForm* spawnForm = RE::TESForm::LookupByID(this->FormId);
 			if (spawnForm == NULL)
 			{
 				logger::info("Failed to Spawn. Form Invalid");

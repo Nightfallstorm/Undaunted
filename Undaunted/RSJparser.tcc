@@ -61,6 +61,7 @@ std::string to_string (RSJresourceType rt) {
         case RSJ_ARRAY: return("RSJ_ARRAY");
         case RSJ_LEAF: return("RSJ_LEAF");
     }
+    return("");
 }
 
 enum StrTrimDir { STRTRIM_L=1, STRTRIM_R=2, STRTRIM_LR=3 };

@@ -7,7 +7,7 @@ namespace Undaunted
 		WorldCellList newlist = WorldCellList();
 		newlist.length = currentlist->length + 1;
 		newlist.data = new WorldCell[newlist.length];
-		for (int i = 0; i < currentlist->length; i++)
+		for (std::uint32_t i = 0; i < currentlist->length; i++)
 		{
 			newlist.data[i] = currentlist->data[i];
 		}

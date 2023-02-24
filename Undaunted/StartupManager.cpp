@@ -77,25 +77,23 @@ namespace Undaunted {
 		int tempform = form;
 		if (modInfo != NULL)
 		{
-			tempform = (modInfo->modIndex << 24) + tempform;
+			tempform = (modInfo->compileIndex << 24) + tempform;
 		}
 		if (tempform < 0) // Probably trying to load from an ESL.
 		{
 			//ESL Load order
-			for (int i = 0; i < dataHandler->modList.loadedCCMods.count; i++)
+			for (auto modinfo: dataHandler->compiledFileCollection.smallFiles)
 			{
-				ModInfo* modinfo;
-				dataHandler->modList.loadedCCMods.GetNthItem(i, modinfo);
-				if (_stricmp(modinfo->name, mod.c_str()) == 0)			
+				if (_stricmp(modinfo->fileName, mod.c_str()) == 0)			
 				{
 					// modIndex lightIndex FormId
 					// 0xFE FFF 000
-					tempform = (modInfo->modIndex << 24) + (modinfo->lightIndex << 12) + form;
+					tempform = (modInfo->compileIndex << 24) + (modinfo->smallFileCompileIndex << 12) + form;
 				}
 			}
 		}
 		form = tempform;
-		logger::info("modIndex: ", modInfo->modIndex);
+		logger::info("modIndex: ", modInfo->compileIndex);
 		logger::info("form id: %i", form);
 		return form;
 	}
@@ -107,7 +105,11 @@ namespace Undaunted {
 		std::string path = "Data/Undaunted/Groups";
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
-			auto filename = entry.path().u8string();
+			std::wstring wstring(entry.path().native());
+			std::string filename;
+			std::transform(wstring.begin(), wstring.end(), std::back_inserter(filename), [](wchar_t c) {
+				return (char)std::tolower((char)c);
+			});
 			logger::info("file: %s", filename.c_str());
 			if (entry.is_regular_file())
 			{
@@ -138,7 +140,7 @@ namespace Undaunted {
 					std::transform(tags.begin(), tags.end(), tags.begin(), ::toupper);
 					taglist.AddItem(tags);
 					const RE::TESFile* modInfo = dataHandler->LookupModByName(modreq.c_str());
-					if (modInfo != NULL && modInfo->IsActive())
+					if (modInfo != NULL && modInfo->compileIndex != 0xFF)
 					{
 						logger::info("tags: %s", tags.c_str());
 						int groupid = AddGroup(groupname, minlevel, maxlevel, taglist);

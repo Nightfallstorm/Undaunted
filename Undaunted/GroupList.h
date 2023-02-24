@@ -25,7 +25,7 @@ namespace Undaunted
 		GroupMember* data;
 		std::uint32_t minLevel;
 		std::uint32_t maxLevel;
-		int length;
+		std::uint32_t length;
 		UnStringlist Tags;
 		GroupList* AddItem(GroupMember item);
 		GroupList* SwapItem(int first, int second);

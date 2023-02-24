@@ -5,7 +5,7 @@ namespace Undaunted
 	class IntList {
 	public:
 		std::uint32_t* data;
-		int length;
+		std::uint32_t length;
 		IntList* AddItem(std::uint32_t item);
 	};
 

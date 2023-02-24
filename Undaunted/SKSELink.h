@@ -7,7 +7,7 @@
 
 namespace Undaunted
 {
-	RE::TESObjectREFR* PlaceAtMe(RE::BSScript::Internal::VirtualMachine* registry, std::uint32_t count, RE::TESObjectREFR* ref, RE::TESForm* spawnForm, int something, bool ForcePersist, bool InitiallyDisabled);
+	RE::TESObjectREFR* PlaceAtMe(RE::BSScript::Internal::VirtualMachine* registry, RE::VMStackID a_stackID, RE::TESObjectREFR* ref, RE::TESForm* spawnForm, std::uint32_t aiCount, bool ForcePersist, bool InitiallyDisabled);
 	RE::BSFixedString GetCurrentWorldspaceName();
 	void MoveRef(RE::TESObjectREFR* object, RE::TESObjectCELL* cell, RE::TESWorldSpace* worldspace, RE::NiPoint3 pos, RE::NiPoint3 rot);
 }

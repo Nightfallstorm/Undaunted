@@ -18,5 +18,6 @@ set(headers ${headers}
 	Undaunted/SpawnUtils.h
 	Undaunted/StartupManager.h
 	Undaunted/UnStringList.h
+	Undaunted/Vector.h
 	Undaunted/WorldCellList.h
 )

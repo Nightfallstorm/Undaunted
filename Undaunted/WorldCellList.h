@@ -13,7 +13,7 @@ namespace Undaunted
 	class WorldCellList {
 	public:
 		WorldCell* data;
-		int length;
+		std::uint32_t length;
 		WorldCellList* AddItem(WorldCell item);
 	};
 #endif

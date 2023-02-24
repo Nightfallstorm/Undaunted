@@ -1,5 +1,5 @@
 #include "SKSELink.h"
-#include <Undaunted\FormRefList.h>
+#include "FormRefList.h"
 
 namespace Undaunted
 {
