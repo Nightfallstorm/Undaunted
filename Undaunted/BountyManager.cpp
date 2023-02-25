@@ -388,7 +388,9 @@ namespace Undaunted {
 	RefList BountyManager::StartRift(std::uint32_t BountyID, RE::TESObjectREFR* Startpoint)
 	{
 		//Bounty bounty = activebounties.data[BountyID];
-		RefList refs = SpawnRift(_registry, Startpoint, Startpoint->parentCell, RE::PlayerCharacter::GetSingleton()->GetWorldspace());
+		auto player = RE::PlayerCharacter::GetSingleton();
+		auto worldSpace = GetPlayerWorldspace();
+		RefList refs = SpawnRift(_registry, Startpoint, Startpoint->parentCell, worldSpace);
 		return refs;
 	}
 

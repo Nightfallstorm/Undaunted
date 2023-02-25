@@ -384,8 +384,11 @@ namespace UndauntedPapyrus {
 		std::uint32_t FormId = (modInfo->GetCompileIndex() << 24) + 1085677; //041090ED - 01_Undaunted_RiftBattleMarker
 		auto player = RE::PlayerCharacter::GetSingleton();
 		WorldCell wcell = WorldCell();
+
+		wcell.world = Undaunted::GetPlayerWorldspace();
 		wcell.cell = player->parentCell;
-		wcell.world = player->GetWorldspace();
+		logger::info("Player world space is: {}", wcell.world->editorID.c_str());
+		// wcell.world = player->currentWorldSpace; // Doesn't work in VR, use expensive GetWorldCellFromRef route
 		wcell.cell->ForEachReference([&](RE::TESObjectREFR& ref) {
 			if (ref.formID != NULL) {
 				if (ref.GetBaseObject()->formID == FormId) {

@@ -69,35 +69,6 @@ namespace Undaunted {
 		}
 	}
 
-	//With creation club there's now a need to load forms from ESL's.
-	int getFormId(std::string mod, int form)
-	{
-		auto dataHandler = RE::TESDataHandler::GetSingleton();
-		const RE::TESFile* modInfo = dataHandler->LookupModByName(mod.c_str());
-		int tempform = form;
-		if (modInfo != NULL)
-		{
-			tempform = (modInfo->compileIndex << 24) + tempform;
-		}
-		if (tempform < 0) // Probably trying to load from an ESL.
-		{
-			//ESL Load order
-			for (auto modinfo: dataHandler->compiledFileCollection.smallFiles)
-			{
-				if (_stricmp(modinfo->fileName, mod.c_str()) == 0)			
-				{
-					// modIndex lightIndex FormId
-					// 0xFE FFF 000
-					tempform = (modInfo->compileIndex << 24) + (modinfo->smallFileCompileIndex << 12) + form;
-				}
-			}
-		}
-		form = tempform;
-		logger::info("modIndex: ", modInfo->compileIndex);
-		logger::info("form id: {}", form);
-		return form;
-	}
-
 	void LoadGroups()
 	{
 		auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -140,7 +111,7 @@ namespace Undaunted {
 					std::transform(tags.begin(), tags.end(), tags.begin(), ::toupper);
 					taglist.AddItem(tags);
 					const RE::TESFile* modInfo = dataHandler->LookupModByName(modreq.c_str());
-					if (modInfo != NULL && modInfo->compileIndex != 0xFF)
+					if (modInfo && modInfo->compileIndex != 0xFF)
 					{
 						logger::info("tags: {}", tags.c_str());
 						int groupid = AddGroup(groupname, minlevel, maxlevel, taglist);
@@ -148,7 +119,7 @@ namespace Undaunted {
 						{
 							std::string esp = group[j][1].as<std::string>("esp");
 							const RE::TESFile* modInfo = dataHandler->LookupModByName(esp.c_str());
-							int form = getFormId(esp,group[j][2].as<int>(0));
+							std::uint32_t form = dataHandler->LookupFormID(group[j][2].as<int>(0) & 0xFFFFFF, esp);
 							std::string type = group[j][3].as<std::string>("type");
 							std::string model = std::string("");
 							if (group[j].size() > 3)
