@@ -95,7 +95,7 @@ namespace Undaunted {
 	{
 		int numberofRefs = worldcell.cell->GetRuntimeData().references.size(); 
 		auto safezones = GetSafezones();
-		//logger::info("GetRandomObjectInCell Num Ref: %i", numberofRefs);		
+		//logger::info("GetRandomObjectInCell Num Ref: {}", numberofRefs);		
 		if (numberofRefs == 0)return NULL;
 		while (true)
 		{
@@ -156,17 +156,17 @@ namespace Undaunted {
 			//Some regions are dodgy
 			if (!badRegion)
 			{
-				logger::info("processing worldSpace %08X", i);
+				logger::info("processing worldSpace {:x}", i);
 
-				if (test != NULL)
+				if (test)
 				{
-					if (test->worldSpace == NULL)
+					if (!test->worldSpace)
 					{
-						logger::info("worldSpace %08X is null", i);
+						logger::info("worldSpace {:x} is null", i);
 					}
 					else
 					{
-						logger::info("worldSpace %08X is not null", i);
+						logger::info("worldSpace {:x} is not null", i);
 						//logger::info("processing worldSpace {}", test->worldSpace->GetFullName());
 						//Yeah. So some regions are really low in the memory stack?
 						//They blow up if you try and use them so we filter out worldspace pointers below 000000000002433E
@@ -179,7 +179,7 @@ namespace Undaunted {
 							RE::TESObjectCELL* cell = test->worldSpace->persistentCell;
 							if (cell != NULL)
 							{
-								logger::info("unk088 is not null for worldspace %08x", i);
+								logger::info("persistentCell is not null for worldspace {:x}", i);
 								int numberofRefs = cell->GetRuntimeData().references.size();
 								if (numberofRefs > 0)
 								{
@@ -205,24 +205,24 @@ namespace Undaunted {
 							}
 							else
 							{
-								logger::info("unk088 is null for worldspace %08x", i);
+								logger::info("persistentCell is null for worldspace {:x}", i);
 							}
 						}
 					}
 				}
 				else
 				{
-					logger::info("RegionList %08X is null", i);
+					logger::info("RegionList {:x} is null", i);
 				}
 			}
 
 			i++;
 		}
-		logger::info("worldCellList built. %i Entries", worldCellList.length);
+		logger::info("worldCellList built. {} Entries", worldCellList.length);
 		worldCellListBuilt = true;
 		for (std::uint32_t i = 0; i < worldCellList.length; i++)
 		{
-			logger::info("WorldName: %s", worldCellList.data[i].world->editorID.c_str());
+			logger::info("WorldName: {}", worldCellList.data[i].world->editorID.c_str());
 		}
 	}
 
@@ -415,16 +415,16 @@ namespace Undaunted {
 if (SpawnLocref == NULL)
 {
 	TESObjectCELL* here = GetPlayer()->parentCell;
-	logger::info("Here form id %08X", here->formID);
-	logger::info("Cell list Size %08X", GetDataHandler()->cellList.m_size);
+	logger::info("Here form id {:x}", here->formID);
+	logger::info("Cell list Size {:x}", GetDataHandler()->cellList.m_size);
 	std::uint32_t cellcount = GetDataHandler()->cellList.m_size;
 	for (int i = 0; i < cellcount; i++)
 	{
 		TESObjectCELL* parentCell = GetDataHandler()->cellList.m_data[i];
-		logger::info("Cell form id %08X", parentCell->formID);
-		logger::info("Cell form id %08X", parentCell->formID);
+		logger::info("Cell form id {:x}", parentCell->formID);
+		logger::info("Cell form id {:x}", parentCell->formID);
 		int numberofRefs = papyrusCell::GetNumRefs(parentCell, 0);
-		logger::info("Num Ref: %i", numberofRefs);
+		logger::info("Num Ref: {}", numberofRefs);
 		SpawnMonstersInCell(1, 0x06001DFC, parentCell);
 	}
 }

@@ -237,7 +237,7 @@ namespace Undaunted
 		auto weightClass = armour->bipedModelData.armorType.get();
 		int targetMaxLevel = GetConfigValueInt("RewardTargetMaxLevel");
 		float levelcoeffient = playerlevel;
-//		logger::info("Level %08X, weightClass: %08X, Value: %i, mask: %08X,  Moneyvalue: %08X", playerlevel, weightClass, Armourvalue, mask, Moneyvalue);
+		logger::info("Level {:x}, weightClass: {:x}, Value: {}, mask: {:x},  Moneyvalue: {:x}", playerlevel, weightClass, Armourvalue, mask, Moneyvalue);
 		int minArmourForPart = 0;
 		int maxArmourForPart = 0;
 		for (std::uint32_t i = 0; i < armour->numKeywords; i++)

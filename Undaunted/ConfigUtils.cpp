@@ -35,7 +35,7 @@ namespace Undaunted
 
 	void AddMembertoGroup(int id, GroupMember member)
 	{
-		//logger::info("Adding %08X to %i of BountyType %s",member.FormId, id,member.BountyType.Get());
+		//logger::info("Adding {:x} to {} of BountyType {}",member.FormId, id,member.BountyType.Get());
 		GroupLibary.data[id].AddItem(member);
 	}
 
@@ -143,14 +143,14 @@ namespace Undaunted
 
 	void AddConfigValue(std::string key, std::string value)
 	{
-		//logger::info("CONFIGLENGTH: %i", SettingsList.length);
+		//logger::info("CONFIGLENGTH: {}", SettingsList.length);
 		//check if it exists		
 		for (int i = 0; i < SettingsList.length; i++)
 		{
 			if (SettingsList.data[i].key.compare(key) == 0)
 			{
 				SettingsList.data[i].value = value;
-				//logger::info("SET: %s : %s", key, value);
+				//logger::info("SET: {} : {}", key, value);
 				return;
 			}
 		}

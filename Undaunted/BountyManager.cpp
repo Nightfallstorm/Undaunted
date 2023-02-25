@@ -22,8 +22,8 @@ namespace Undaunted {
 			return false;
 		}
 		Bounty* bounty = &activebounties.data[BountyID];
-		logger::info("BountyUpdate BountyID: %08X", BountyID);
-		logger::info("BountyID bountywave: %i", bounty->bountywave);
+		logger::info("BountyUpdate BountyID: {:x}", BountyID);
+		logger::info("BountyID bountywave: {}", bounty->bountywave);
 		if (bounty->bountywave == 0 && bounty->bountyworldcell.world != NULL)
 		{
 			//Is the player in the right worldspace?
