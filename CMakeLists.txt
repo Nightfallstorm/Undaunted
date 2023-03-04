@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(NAME "Undaunted")
-set(VERSION 2.0.0)
+set(VERSION 1.6.1)
 
 # ---- Cache build vars ----
 

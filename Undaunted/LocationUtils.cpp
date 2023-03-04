@@ -261,6 +261,7 @@ namespace Undaunted {
 		RE::NiPoint3 distance;
 		bool foundResult = false;
 		WorldCell result = WorldCell();
+		logger::info("GetWorldCellFromRef: Searching for worldcell");
 		for (std::uint32_t i = 0; i < worldCellList.length; i++)
 		{
 			worldCellList.data[i].cell->ForEachReference([&](RE::TESObjectREFR& ref) {
@@ -274,12 +275,16 @@ namespace Undaunted {
 				if (distvector.Magnitude() < 200) {
 					result = worldCellList.data[i];
 					foundResult = true;
+					logger::info("GetWorldCellFromRef: WorldCell found!");
 					return RE::BSContainer::ForEachResult::kStop;
 				}
 				return RE::BSContainer::ForEachResult::kContinue;
 			});
 		}
-		return WorldCell();
+		if (!foundResult) {
+			logger::info("GetWorldCellFromRef: WorldCell wasn't found! CTD or other bugs may occur!");
+		}
+		return result;
 	}
 
 	void CaptureArea()
